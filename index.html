@@ -5,171 +5,209 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>יומן לחץ דם וסוכר</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0e2a35">
+<meta name="theme-color" content="#f2f2f7">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg1:#0e2a35; --bg2:#14404a; --card:#ffffff14; --line:#ffffff26;
-  --txt:#f2f8f8; --mut:#a9c4c8; --acc:#5eead4; --acc2:#2dd4bf;
-  --ok:#4ade80; --warn:#fbbf24; --bad:#f87171; --low:#60a5fa;
+  --bg:#f2f2f7; --card:#ffffff; --txt:#1c1c1e; --mut:#8e8e93; --line:#e5e5ea; --field:#f2f2f7;
+  --bp:#ff375f; --glu:#ff9f0a; --pul:#5e5ce6;
+  --ok:#30a14e; --warn:#ff9f0a; --bad:#ff453a; --low:#0a84ff;
+  --btn:#1c1c1e; --btntxt:#ffffff; --band:#30a14e1f; --grid:#e5e5ea;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#000000; --card:#1c1c1e; --txt:#ffffff; --mut:#8e8e93; --line:#2c2c2e; --field:#2c2c2e;
+    --ok:#32d74b; --btn:#ffffff; --btntxt:#000000; --band:#32d74b26; --grid:#2c2c2e;
+  }
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0}
-body{
-  font-family:'Heebo',system-ui,sans-serif; color:var(--txt);
-  background:linear-gradient(160deg,var(--bg1),var(--bg2)) fixed; min-height:100vh;
-  padding:max(16px,env(safe-area-inset-top)) 14px max(28px,env(safe-area-inset-bottom));
-}
-.wrap{max-width:480px;margin:0 auto}
-h1{font-size:24px;font-weight:800;margin:6px 4px 2px}
-.sub{color:var(--mut);font-size:14px;margin:0 4px 16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:14px;backdrop-filter:blur(8px)}
-.card h2{font-size:16px;margin:0 0 12px;font-weight:700}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Heebo','Arial Hebrew',Arial,sans-serif;
+  background:var(--bg);color:var(--txt);min-height:100vh;
+  padding:max(14px,env(safe-area-inset-top)) 14px calc(86px + env(safe-area-inset-bottom))}
+.wrap{max-width:520px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:flex-start;margin:4px 2px 14px}
+.hdate{font-size:13px;color:var(--mut)}
+h1{font-size:28px;font-weight:700;letter-spacing:-.5px;margin:0}
+.gear{background:var(--card);border:0;width:38px;height:38px;border-radius:50%;color:var(--txt);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative}
+.gear svg{width:20px;height:20px}
+.dot{position:absolute;top:2px;inset-inline-start:2px;width:9px;height:9px;border-radius:50%;background:var(--ok);display:none;border:2px solid var(--bg)}
+.card{background:var(--card);border-radius:20px;padding:16px;margin-bottom:12px}
+.card h2{font-size:15px;margin:0 0 12px;font-weight:600}
+.view{display:none}.view.on{display:block}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 label{display:block;font-size:12.5px;color:var(--mut);margin-bottom:5px}
-input,select,textarea{
-  width:100%;font:inherit;font-size:18px;font-weight:600;color:var(--txt);
-  background:#00000033;border:1px solid var(--line);border-radius:14px;padding:12px 10px;outline:none;text-align:center
-}
+input,select,textarea{width:100%;font:inherit;font-size:20px;font-weight:600;color:var(--txt);background:var(--field);
+  border:2px solid transparent;border-radius:14px;padding:12px 8px;outline:none;text-align:center}
 select{font-size:15px;text-align:start;padding-inline:10px}
-select option{color:#111}
 textarea{font-size:15px;font-weight:400;text-align:start;resize:none}
-input:focus,select:focus,textarea:focus{border-color:var(--acc)}
 input[type=date],input[type=time]{font-size:15px}
-.hint{font-size:12.5px;margin-top:6px;min-height:18px;font-weight:500}
+input:focus,select:focus,textarea:focus{border-color:var(--low)}
+.hint{font-size:13px;margin-top:6px;min-height:18px;font-weight:600}
 .sep{height:1px;background:var(--line);margin:14px 0}
-.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:700}
-.ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)} .low{color:var(--low)}
-.bg-ok{background:#4ade8026;color:var(--ok)} .bg-warn{background:#fbbf2426;color:var(--warn)}
-.bg-bad{background:#f8717126;color:var(--bad)} .bg-low{background:#60a5fa26;color:var(--low)}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}.low{color:var(--low)}
 button{font:inherit;cursor:pointer;border:0}
-.save{width:100%;margin-top:14px;padding:15px;border-radius:16px;font-weight:800;font-size:17px;color:#04302b;
-  background:linear-gradient(135deg,var(--acc),var(--acc2))}
+.save{width:100%;margin-top:14px;padding:15px;border-radius:16px;font-weight:700;font-size:16px;background:var(--btn);color:var(--btntxt)}
 .save:active{transform:scale(.98)}
-.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center}
-.stat b{display:block;font-size:22px;font-weight:800}
-.stat span{font-size:12px;color:var(--mut)}
-.entry{border-top:1px solid var(--line);padding:12px 0}
-.entry:first-child{border-top:0}
-.entry .top{display:flex;justify-content:space-between;align-items:center;color:var(--mut);font-size:13px}
-.entry .vals{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:6px;align-items:center}
-.val{font-size:19px;font-weight:800}
-.val small{font-size:12px;font-weight:500;color:var(--mut);margin-inline-start:3px}
-.del{background:none;color:var(--mut);font-size:13px;padding:2px 6px}
+.tile{border-radius:20px;background:var(--card);padding:14px;margin-bottom:12px}
+.tile .lab{font-size:13px;font-weight:600}
+.tile .big{display:flex;align-items:baseline;gap:6px;margin-top:4px}
+.tile .num{font-size:34px;font-weight:700;letter-spacing:-1px}
+.tile .unit{font-size:12px;color:var(--mut)}
+.tile .meta{display:flex;justify-content:space-between;font-size:12px;margin-top:2px;color:var(--mut)}
+.tiles2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tiles2 .tile{margin-bottom:12px}
+.tiles2 .num{font-size:28px}
+.day{font-size:13px;color:var(--mut);margin:16px 4px 6px;font-weight:600}
+.entry{background:var(--card);border-radius:16px;padding:12px 14px;margin-bottom:8px}
+.entry .top{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mut)}
+.entry .vals{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:6px}
+.val{font-size:20px;font-weight:700}
+.val small{font-size:11px;font-weight:500;color:var(--mut);margin-inline-start:4px}
 .note{color:var(--mut);font-size:13px;margin-top:4px}
-.tools{display:flex;gap:10px}
-.tools button{flex:1;padding:11px;border-radius:14px;background:#ffffff1a;color:var(--txt);font-weight:600;border:1px solid var(--line)}
-.empty{color:var(--mut);text-align:center;padding:18px 0;font-size:14px}
-.legend{font-size:12.5px;color:var(--mut);line-height:1.8}
+.del{background:none;color:var(--mut);font-size:13px;padding:2px 4px}
+.empty{color:var(--mut);text-align:center;padding:26px 0;font-size:14px}
+.chips{display:flex;gap:8px;margin-bottom:12px}
+.chipb{flex:1;background:var(--card);color:var(--txt);border-radius:12px;padding:9px;font-size:14px;font-weight:600}
+.chipb.on{background:var(--btn);color:var(--btntxt)}
+.ch-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.ch-head b{font-size:15px}
+.ch-head span{font-size:12px;color:var(--mut)}
+svg text{font-family:inherit}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:5}
+nav button{flex:1;background:none;color:var(--mut);padding:6px 0;font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button svg{width:24px;height:24px}
+nav button.on{color:var(--low)}
+.sheet{position:fixed;inset:0;background:var(--bg);z-index:10;padding:max(14px,env(safe-area-inset-top)) 14px 30px;overflow:auto;display:none}
+.sheet.on{display:block}
+.sheet h1{font-size:24px}
+.close{background:var(--card);color:var(--txt);border-radius:999px;padding:8px 16px;font-weight:600;font-size:14px}
+.tools{display:flex;gap:10px;margin-top:12px}
+.tools button{flex:1;padding:12px;border-radius:14px;background:var(--field);color:var(--txt);font-weight:600}
+.legend{font-size:13px;color:var(--mut);line-height:1.8;margin:10px 0 0}
 .legend b{color:var(--txt)}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;transition:.25s;pointer-events:none}
+details summary{cursor:pointer;color:var(--mut);font-size:14px;margin-top:6px}
+#backup{width:100%;height:100px;margin-top:10px;font-size:12px;direction:ltr;text-align:left;display:none}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#000d;color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:20}
 .toast.show{opacity:1}
-#backup{width:100%;height:110px;margin-top:10px;font-size:12px;direction:ltr;text-align:left;display:none}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>🫀 יומן מדידות</h1>
-  <p class="sub">לחץ דם · דופק · סוכר <span id="syncState" style="margin-inline-start:8px"></span></p>
+  <header>
+    <div><div class="hdate" id="hdate"></div><h1 id="title">מדידות</h1></div>
+    <button class="gear" id="gear" aria-label="הגדרות">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      <span class="dot" id="dot"></span>
+    </button>
+  </header>
 
-  <div class="card">
-    <h2>מדידה חדשה</h2>
-    <div class="row">
-      <div><label>תאריך</label><input type="date" id="d"></div>
-      <div><label>שעה</label><input type="time" id="t"></div>
-    </div>
-    <div class="sep"></div>
+  <section class="view on" id="vAdd">
+    <div class="tile" id="tBP"></div>
+    <div class="tiles2"><div class="tile" id="tGlu"></div><div class="tile" id="tPul"></div></div>
 
-    <div class="row3">
-      <div><label>סיסטולי (עליון)</label><input type="number" inputmode="numeric" id="sys" placeholder="126"></div>
-      <div><label>דיאסטולי (תחתון)</label><input type="number" inputmode="numeric" id="dia" placeholder="84"></div>
-      <div><label>דופק</label><input type="number" inputmode="numeric" id="pul" placeholder="70"></div>
-    </div>
-    <div class="hint" id="hBP"></div>
-    <div class="hint" id="hPul"></div>
-
-    <div class="sep"></div>
-    <div class="row">
-      <div><label>סוכר (mg/dL)</label><input type="number" inputmode="numeric" id="glu" placeholder="106"></div>
-      <div><label>מתי נמדד</label>
-        <select id="ctx">
-          <option value="fast">צום (בוקר)</option>
-          <option value="pre">לפני ארוחה</option>
-          <option value="post">שעתיים אחרי ארוחה</option>
-          <option value="bed">לפני שינה</option>
-        </select>
+    <div class="card">
+      <h2>מדידה חדשה</h2>
+      <div class="row">
+        <div><label>תאריך</label><input type="date" id="d"></div>
+        <div><label>שעה</label><input type="time" id="t"></div>
       </div>
+      <div class="sep"></div>
+      <div class="row3">
+        <div><label>סיסטולי (עליון)</label><input type="number" inputmode="numeric" id="sys" placeholder="126"></div>
+        <div><label>דיאסטולי (תחתון)</label><input type="number" inputmode="numeric" id="dia" placeholder="84"></div>
+        <div><label>דופק</label><input type="number" inputmode="numeric" id="pul" placeholder="70"></div>
+      </div>
+      <div class="hint" id="hBP"></div>
+      <div class="hint" id="hPul" style="margin-top:0"></div>
+      <div class="sep"></div>
+      <div class="row">
+        <div><label>סוכר (mg/dL)</label><input type="number" inputmode="numeric" id="glu" placeholder="106"></div>
+        <div><label>מתי נמדד</label>
+          <select id="ctx">
+            <option value="fast">צום (בוקר)</option>
+            <option value="pre">לפני ארוחה</option>
+            <option value="post">שעתיים אחרי ארוחה</option>
+            <option value="bed">לפני שינה</option>
+          </select>
+        </div>
+      </div>
+      <div class="hint" id="hGlu"></div>
+      <div class="sep"></div>
+      <label>הערה (לא חובה)</label>
+      <textarea id="note" rows="2" placeholder="למשל: אחרי קפה, אחרי הכדור"></textarea>
+      <button class="save" id="save">שמור מדידה</button>
     </div>
-    <div class="hint" id="hGlu"></div>
+  </section>
 
-    <div class="sep"></div>
-    <label>הערה (לא חובה)</label>
-    <textarea id="note" rows="2" placeholder="למשל: אחרי קפה, אחרי הכדור, לחוץ..."></textarea>
-    <button class="save" id="save">שמור מדידה</button>
-  </div>
-
-  <div class="card">
-    <h2>ממוצע 7 ימים אחרונים</h2>
-    <div class="stats" id="stats"></div>
-  </div>
-
-  <div class="card">
-    <h2>היסטוריה</h2>
+  <section class="view" id="vLog">
     <div id="list"></div>
-  </div>
+  </section>
 
+  <section class="view" id="vCharts">
+    <div class="chips" id="rangeChips">
+      <button class="chipb on" data-days="7">7 ימים</button>
+      <button class="chipb" data-days="30">30 יום</button>
+      <button class="chipb" data-days="90">90 יום</button>
+    </div>
+    <div class="card"><div class="ch-head"><b style="color:var(--bp)">לחץ דם</b><span id="sBP"></span></div><div id="cBP"></div></div>
+    <div class="card"><div class="ch-head"><b style="color:var(--glu)">סוכר</b><span id="sGlu"></span></div><div id="cGlu"></div></div>
+    <div class="card"><div class="ch-head"><b style="color:var(--pul)">דופק</b><span id="sPul"></span></div><div id="cPul"></div></div>
+  </section>
+</div>
+
+<nav>
+  <button id="nAdd" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>מדידה</button>
+  <button id="nLog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>יומן</button>
+  <button id="nCharts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>גרפים</button>
+</nav>
+
+<div class="sheet" id="sheet">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <h1>הגדרות</h1><button class="close" id="closeSheet">סגור</button>
+  </div>
   <div class="card">
     <h2>סנכרון בין מכשירים</h2>
-    <label>מאגר נתונים פרטי (owner/name)</label>
+    <div class="hint" id="syncState" style="margin:0 0 10px;color:var(--mut)"></div>
+    <label>מאגר נתונים פרטי</label>
     <input id="cfgRepo" placeholder="roie-10-fashion/health-data" style="direction:ltr;font-size:15px;font-weight:500">
     <label style="margin-top:10px">טוקן גישה</label>
     <input id="cfgTok" type="password" placeholder="github_pat_..." style="direction:ltr;font-size:15px;font-weight:500">
-    <div class="tools" style="margin-top:12px">
-      <button id="cfgSave">שמור וסנכרן</button>
-      <button id="syncNow">סנכרן עכשיו</button>
-    </div>
-    <p class="legend" style="margin:10px 0 0">את ההגדרות האלה מזינים פעם אחת בכל מכשיר. הנתונים נשמרים במאגר פרטי בלבד.</p>
+    <div class="tools"><button id="cfgSave">שמור וסנכרן</button><button id="syncNow">סנכרן עכשיו</button></div>
+    <p class="legend">מזינים פעם אחת בכל מכשיר. הנתונים נשמרים במאגר פרטי בלבד.</p>
   </div>
-
-  <div class="card">
-    <h2>גיבוי</h2>
-    <div class="tools">
-      <button id="exp">העתק גיבוי</button>
-      <button id="imp">שחזר מגיבוי</button>
-    </div>
-    <textarea id="backup" placeholder="הדבק כאן גיבוי ולחץ שוב על שחזר"></textarea>
-    <p class="legend" style="margin:10px 0 0">הנתונים נשמרים בדפדפן של הטלפון הזה בלבד. מומלץ להעתיק גיבוי מדי פעם ולשמור בהערות.</p>
-  </div>
-
   <div class="card">
     <h2>טווחי יעד</h2>
-    <div class="legend">
-      <b>לחץ דם (בטיפול):</b> יעד מתחת ל-130/80 · 130–139 / 80–89 מעט גבוה · 140/90 ומעלה גבוה<br>
+    <div class="legend" style="margin:0">
+      <b>לחץ דם (בטיפול):</b> יעד מתחת ל-130/80, בין 130/80 ל-139/89 מעט גבוה, מ-140/90 גבוה<br>
       <b>דופק:</b> 60–100 תקין<br>
-      <b>סוכר בצום / לפני ארוחה:</b> 80–130<br>
+      <b>סוכר בצום או לפני ארוחה:</b> 80–130<br>
       <b>שעתיים אחרי ארוחה:</b> מתחת ל-180<br>
       <b>לפני שינה:</b> 100–140<br>
       <b>מתחת ל-70:</b> סוכר נמוך, לאכול משהו מתוק ולמדוד שוב אחרי 15 דקות<br>
       <b>מעל 250 פעמיים ברצף או תסמינים חזקים:</b> לפנות לרופא<br>
-      הטווחים כלליים. היעד האישי שלך נקבע על ידי הרופא.
+      הטווחים כלליים. היעד האישי נקבע על ידי הרופא.
     </div>
   </div>
+  <details>
+    <summary>גיבוי ידני (לא חובה)</summary>
+    <div class="tools"><button id="exp">העתק גיבוי</button><button id="imp">שחזר מגיבוי</button></div>
+    <textarea id="backup" placeholder="הדבק כאן גיבוי ולחץ שוב על שחזר"></textarea>
+  </details>
 </div>
 <div class="toast" id="toast"></div>
 
 <script>
 (function(){
-  var KEY='bpsugar-log-v1';
+  var KEY='bpsugar-log-v1', CFG='bpsugar-cfg-v1';
   var CTX={fast:'צום',pre:'לפני ארוחה',post:'שעתיים אחרי ארוחה',bed:'לפני שינה'};
+  var COL={ok:'#30a14e',warn:'#ff9f0a',bad:'#ff453a',low:'#0a84ff'};
   var $=function(i){return document.getElementById(i)};
-  var log=[];
-  var deleted=[];
-  var CFG='bpsugar-cfg-v1', sha=null, busy=false;
+  var log=[], deleted=[], sha=null, busy=false, days=7;
 
+  function pad(n){return n<10?'0'+n:''+n}
   function load(){
     try{var s=localStorage.getItem(KEY);log=s?JSON.parse(s):[]}catch(e){log=[]}
     if(!Array.isArray(log))log=[];
@@ -177,18 +215,14 @@ button{font:inherit;cursor:pointer;border:0}
     if(!Array.isArray(deleted))deleted=[];
   }
   function getCfg(){try{return JSON.parse(localStorage.getItem(CFG)||'{}')}catch(e){return{}}}
-  function persist(){
-    try{localStorage.setItem(KEY,JSON.stringify(log));localStorage.setItem(KEY+'-del',JSON.stringify(deleted));return true}catch(e){return false}
-  }
+  function persist(){try{localStorage.setItem(KEY,JSON.stringify(log));localStorage.setItem(KEY+'-del',JSON.stringify(deleted));return true}catch(e){return false}}
   function toast(m){var t=$('toast');t.textContent=m;t.className='toast show';setTimeout(function(){t.className='toast'},2000)}
-  function pad(n){return n<10?'0'+n:''+n}
-  function setNow(){
-    var n=new Date();
-    $('d').value=n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate());
-    $('t').value=pad(n.getHours())+':'+pad(n.getMinutes());
-  }
+  function setNow(){var n=new Date();$('d').value=n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate());$('t').value=pad(n.getHours())+':'+pad(n.getMinutes())}
+  function ts(x){return new Date(x.d+'T'+x.t).getTime()}
+  function fd(d){var p=d.split('-');return p[2]+'.'+p[1]+'.'+p[0]}
+  function sdate(t){var n=new Date(t);return pad(n.getDate())+'.'+pad(n.getMonth()+1)}
 
-  // ---- classification: returns [cssClass, text]
+  // ---- classification
   function clsBP(s,d){
     if(!s||!d)return null;
     if(s>=180||d>=120)return['bad','גבוה מאוד, לפנות לרופא'];
@@ -199,77 +233,147 @@ button{font:inherit;cursor:pointer;border:0}
   }
   function clsPul(p){
     if(!p)return null;
-    if(p<60)return['low','דופק נמוך'];
-    if(p>100)return['warn','דופק גבוה'];
-    return['ok','דופק תקין'];
+    if(p<60)return['low','נמוך'];
+    if(p>100)return['warn','גבוה'];
+    return['ok','תקין'];
   }
   function clsGlu(g,c){
     if(!g)return null;
     if(g<70)return['low','נמוך, לאכול משהו מתוק'];
     if(g>250)return['bad','גבוה מאוד'];
-    if(c==='post'){
-      if(g<180)return['ok','בטווח היעד'];
-      return['warn','מעל היעד (180)'];
-    }
-    if(c==='bed'){
-      if(g>=100&&g<=140)return['ok','בטווח היעד'];
-      if(g<100)return['warn','מעט נמוך לפני שינה'];
-      return['warn','מעל היעד'];
-    }
+    if(c==='post')return g<180?['ok','בטווח היעד']:['warn','מעל היעד'];
+    if(c==='bed'){if(g>=100&&g<=140)return['ok','בטווח היעד'];return g<100?['warn','מעט נמוך']:['warn','מעל היעד']}
     if(g>=80&&g<=130)return['ok','בטווח היעד'];
-    if(g<80)return['warn','בגבול התחתון'];
-    return['warn','מעל היעד (130)'];
+    return g<80?['warn','בגבול התחתון']:['warn','מעל היעד'];
   }
   function num(id){var v=parseInt($(id).value,10);return isNaN(v)?null:v}
-  function hint(id,r,pre){
-    var e=$(id);
-    if(!r){e.textContent='';e.className='hint';return}
-    e.textContent=(pre||'')+r[1];e.className='hint '+r[0];
-  }
+  function hint(id,r,pre){var e=$(id);if(!r){e.textContent='';e.className='hint';return}e.textContent=(pre||'')+r[1];e.className='hint '+r[0]}
   function live(){
     hint('hBP',clsBP(num('sys'),num('dia')),'לחץ דם: ');
-    hint('hPul',clsPul(num('pul')));
+    hint('hPul',clsPul(num('pul')),'דופק: ');
     hint('hGlu',clsGlu(num('glu'),$('ctx').value),'סוכר: ');
   }
 
-  // ---- render
-  function chip(r){return r?'<span class="chip bg-'+r[0]+'">'+r[1]+'</span>':''}
-  function fmtDate(d,t){
-    var p=d.split('-');return p[2]+'.'+p[1]+'.'+p[0]+' · '+t;
+  // ---- tiles (latest values)
+  function sorted(){return log.slice().sort(function(a,b){return ts(b)-ts(a)})}
+  function tile(el,color,label,numTxt,unit,r,when){
+    el.innerHTML='';
+    var h='<div class="lab" style="color:'+color+'">'+label+'</div>'+
+      '<div class="big"><span class="num">'+numTxt+'</span><span class="unit">'+unit+'</span></div>'+
+      '<div class="meta"><span class="'+(r?r[0]:'')+'" style="font-weight:600">'+(r?r[1]:'אין מדידה')+'</span><span>'+when+'</span></div>';
+    el.innerHTML=h;
   }
-  function render(){
+  function renderTiles(){
+    var S=sorted();
+    var b=S.filter(function(x){return x.sys&&x.dia})[0];
+    var g=S.filter(function(x){return x.glu})[0];
+    var p=S.filter(function(x){return x.pul})[0];
+    function when(x){return x?fd(x.d).slice(0,5)+' · '+x.t:''}
+    tile($('tBP'),'var(--bp)','לחץ דם',b?b.sys+'/'+b.dia:'–','mmHg',b?clsBP(b.sys,b.dia):null,when(b));
+    tile($('tGlu'),'var(--glu)','סוכר',g?g.glu:'–','mg/dL',g?clsGlu(g.glu,g.ctx):null,g?CTX[g.ctx]:'');
+    tile($('tPul'),'var(--pul)','דופק',p?p.pul:'–','פעימות',p?clsPul(p.pul):null,when(p));
+  }
+
+  // ---- log list
+  function renderLog(){
     var L=$('list');L.textContent='';
-    if(!log.length){var e=document.createElement('div');e.className='empty';e.textContent='עדיין אין מדידות. הוסף את הראשונה למעלה.';L.appendChild(e)}
-    var sorted=log.slice().sort(function(a,b){return (b.d+b.t).localeCompare(a.d+a.t)});
-    sorted.forEach(function(x){
-      var div=document.createElement('div');div.className='entry';
-      var h='<div class="top"><span>'+fmtDate(x.d,x.t)+'</span><button class="del" data-id="'+x.id+'">מחק</button></div><div class="vals">';
-      if(x.sys&&x.dia){
-        var r=clsBP(x.sys,x.dia);
-        h+='<span class="val '+r[0]+'">'+x.sys+'/'+x.dia+'<small>לחץ דם</small></span>';
+    var S=sorted();
+    if(!S.length){var e=document.createElement('div');e.className='empty';e.textContent='אין מדידות עדיין. הוסף את הראשונה בלשונית מדידה.';L.appendChild(e);return}
+    var lastDay='';
+    S.forEach(function(x){
+      if(x.d!==lastDay){
+        lastDay=x.d;
+        var h=document.createElement('div');h.className='day';
+        var wd='';try{wd=new Date(x.d+'T12:00').toLocaleDateString('he-IL',{weekday:'long'})+' · '}catch(e){}
+        h.textContent=wd+fd(x.d);L.appendChild(h);
       }
-      if(x.pul){var rp=clsPul(x.pul);h+='<span class="val '+rp[0]+'">'+x.pul+'<small>דופק</small></span>'}
-      if(x.glu){var rg=clsGlu(x.glu,x.ctx);h+='<span class="val '+rg[0]+'">'+x.glu+'<small>סוכר · '+CTX[x.ctx]+'</small></span>'}
-      h+='</div>';
-      div.innerHTML=h;
+      var div=document.createElement('div');div.className='entry';
+      var h2='<div class="top"><span>'+x.t+'</span><button class="del" data-id="'+x.id+'">מחק</button></div><div class="vals">';
+      if(x.sys&&x.dia){var r=clsBP(x.sys,x.dia);h2+='<span class="val '+r[0]+'">'+x.sys+'/'+x.dia+'<small>לחץ דם</small></span>'}
+      if(x.pul){var rp=clsPul(x.pul);h2+='<span class="val '+rp[0]+'">'+x.pul+'<small>דופק</small></span>'}
+      if(x.glu){var rg=clsGlu(x.glu,x.ctx);h2+='<span class="val '+rg[0]+'">'+x.glu+'<small>סוכר · '+CTX[x.ctx]+'</small></span>'}
+      h2+='</div>';
+      div.innerHTML=h2;
       if(x.note){var n=document.createElement('div');n.className='note';n.textContent=x.note;div.appendChild(n)}
       L.appendChild(div);
     });
-    // stats
-    var since=new Date();since.setDate(since.getDate()-7);
-    var key=since.getFullYear()+'-'+pad(since.getMonth()+1)+'-'+pad(since.getDate());
-    var w=log.filter(function(x){return x.d>=key});
-    function avg(a){return a.length?Math.round(a.reduce(function(s,v){return s+v},0)/a.length):null}
-    var s=avg(w.filter(function(x){return x.sys}).map(function(x){return x.sys}));
-    var d=avg(w.filter(function(x){return x.dia}).map(function(x){return x.dia}));
-    var p=avg(w.filter(function(x){return x.pul}).map(function(x){return x.pul}));
-    var g=avg(w.filter(function(x){return x.glu&&(x.ctx==='fast'||x.ctx==='pre')}).map(function(x){return x.glu}));
-    var bp=(s&&d)?clsBP(s,d):null, gl=g?clsGlu(g,'fast'):null;
-    $('stats').innerHTML=
-      '<div class="stat"><b class="'+(bp?bp[0]:'')+'">'+((s&&d)?s+'/'+d:'–')+'</b><span>לחץ דם</span></div>'+
-      '<div class="stat"><b>'+(p||'–')+'</b><span>דופק</span></div>'+
-      '<div class="stat"><b class="'+(gl?gl[0]:'')+'">'+(g||'–')+'</b><span>סוכר צום/לפני ארוחה</span></div>';
   }
+
+  // ---- charts
+  function niceStep(raw){if(!(raw>0))return 1;var p=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10)),f=raw/p;return(f<=1?1:f<=2?2:f<=5?5:10)*p}
+  function drawChart(id,series,bands){
+    var box=$(id),all=[];
+    series.forEach(function(s){s.pts.forEach(function(p){all.push(p)})});
+    if(!all.length){box.innerHTML='<div class="empty">אין נתונים בטווח הזה</div>';return}
+    var W=320,H=170,pl=34,pr=8,pt=10,pb=22;
+    var ts_=all.map(function(p){return p.t}),t0=Math.min.apply(null,ts_),t1=Math.max.apply(null,ts_);
+    if(t0===t1){t0-=43200000;t1+=43200000}
+    var vals=all.map(function(p){return p.v});bands.forEach(function(b){vals.push(b.from,b.to)});
+    var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals),pad_=(hi-lo)*0.1||5;lo-=pad_;hi+=pad_;
+    var st=niceStep((hi-lo)/4);lo=Math.floor(lo/st)*st;hi=Math.ceil(hi/st)*st;
+    function X(t){return pl+(t-t0)/(t1-t0)*(W-pl-pr)}
+    function Y(v){return pt+(hi-v)/(hi-lo)*(H-pt-pb)}
+    var o='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="direction:ltr;display:block">';
+    bands.forEach(function(b){o+='<rect x="'+pl+'" y="'+Y(b.to).toFixed(1)+'" width="'+(W-pl-pr)+'" height="'+Math.max(0,Y(b.from)-Y(b.to)).toFixed(1)+'" fill="'+(b.color||'var(--band)')+'"/>'});
+    for(var v=lo;v<=hi+0.001;v+=st){
+      o+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+Y(v).toFixed(1)+'" y2="'+Y(v).toFixed(1)+'" stroke="var(--grid)" stroke-width="1"/>';
+      o+='<text x="'+(pl-5)+'" y="'+(Y(v)+4).toFixed(1)+'" text-anchor="end" font-size="10" fill="var(--mut)">'+Math.round(v)+'</text>';
+    }
+    o+='<text x="'+pl+'" y="'+(H-5)+'" font-size="10" fill="var(--mut)">'+sdate(t0)+'</text>';
+    o+='<text x="'+(W-pr)+'" y="'+(H-5)+'" text-anchor="end" font-size="10" fill="var(--mut)">'+sdate(t1)+'</text>';
+    series.forEach(function(s){
+      var P=s.pts.slice().sort(function(a,b){return a.t-b.t});
+      if(P.length>1&&s.line!==false){
+        o+='<polyline fill="none" stroke="'+s.color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="'+(s.faint?0.35:1)+'" points="'+P.map(function(p){return X(p.t).toFixed(1)+','+Y(p.v).toFixed(1)}).join(' ')+'"/>';
+      }
+      P.forEach(function(p){o+='<circle cx="'+X(p.t).toFixed(1)+'" cy="'+Y(p.v).toFixed(1)+'" r="3.6" fill="'+(p.c||s.color)+'" stroke="var(--card)" stroke-width="1.5"/>'});
+    });
+    o+='</svg>';
+    box.innerHTML=o;
+  }
+  function avg(a){return a.length?Math.round(a.reduce(function(s,v){return s+v},0)/a.length):null}
+  function renderCharts(){
+    var since=Date.now()-days*86400000;
+    var W=log.filter(function(x){return ts(x)>=since});
+    var bp=W.filter(function(x){return x.sys&&x.dia}),pu=W.filter(function(x){return x.pul}),gl=W.filter(function(x){return x.glu});
+    drawChart('cBP',[
+      {color:'#ff375f',pts:bp.map(function(x){return{t:ts(x),v:x.sys}})},
+      {color:'#ff8fa5',pts:bp.map(function(x){return{t:ts(x),v:x.dia}})}
+    ],[{from:90,to:130},{from:60,to:80,color:'#ff8fa51a'}]);
+    drawChart('cGlu',[
+      {color:'#ff9f0a',faint:true,pts:gl.map(function(x){var r=clsGlu(x.glu,x.ctx);return{t:ts(x),v:x.glu,c:COL[r[0]]}})}
+    ],[{from:80,to:130}]);
+    drawChart('cPul',[{color:'#5e5ce6',pts:pu.map(function(x){return{t:ts(x),v:x.pul}})}],[{from:60,to:100}]);
+    var s=avg(bp.map(function(x){return x.sys})),d=avg(bp.map(function(x){return x.dia}));
+    $('sBP').textContent=s?'ממוצע '+s+'/'+d+' · עליון כהה, תחתון בהיר':'';
+    var g=avg(gl.filter(function(x){return x.ctx==='fast'||x.ctx==='pre'}).map(function(x){return x.glu}));
+    $('sGlu').textContent=g?'ממוצע צום/לפני ארוחה '+g+' · האזור הירוק 80–130':'';
+    var p=avg(pu.map(function(x){return x.pul}));
+    $('sPul').textContent=p?'ממוצע '+p+' · האזור 60–100':'';
+  }
+  function render(){renderTiles();renderLog();renderCharts()}
+
+  // ---- navigation
+  function show(v){
+    ['Add','Log','Charts'].forEach(function(n){
+      $('v'+n).className='view'+(n===v?' on':'');
+      $('n'+n).className=n===v?'on':'';
+    });
+    $('title').textContent=v==='Add'?'מדידות':v==='Log'?'יומן':'גרפים';
+    if(v==='Charts')renderCharts();
+    window.scrollTo(0,0);
+  }
+  $('nAdd').addEventListener('click',function(){show('Add')});
+  $('nLog').addEventListener('click',function(){show('Log')});
+  $('nCharts').addEventListener('click',function(){show('Charts')});
+  $('rangeChips').addEventListener('click',function(e){
+    var d=e.target&&e.target.getAttribute&&e.target.getAttribute('data-days');if(!d)return;
+    days=parseInt(d,10);
+    Array.prototype.forEach.call($('rangeChips').children,function(b){b.className='chipb'+(b===e.target?' on':'')});
+    renderCharts();
+  });
+  $('gear').addEventListener('click',function(){$('sheet').className='sheet on'});
+  $('closeSheet').addEventListener('click',function(){$('sheet').className='sheet'});
 
   // ---- actions
   $('save').addEventListener('click',function(){
@@ -279,58 +383,52 @@ button{font:inherit;cursor:pointer;border:0}
     if(!x.d||!x.t){toast('חסר תאריך או שעה');return}
     if(!(x.sys&&x.dia)&&!x.pul&&!x.glu){toast('הכנס לפחות ערך אחד');return}
     if((x.sys&&!x.dia)||(!x.sys&&x.dia)){toast('חסר ערך עליון או תחתון');return}
-    log.push(x);
-    var ok=persist();
+    log.push(x);var ok=persist();
     ['sys','dia','pul','glu','note'].forEach(function(i){$(i).value=''});
     setNow();live();render();sync();
-    toast(ok?'נשמר ✓':'נשמר לשימוש זמני בלבד');
+    toast(ok?'נשמר':'נשמר לשימוש זמני בלבד');
   });
   $('list').addEventListener('click',function(e){
-    var id=e.target&&e.target.getAttribute&&e.target.getAttribute('data-id');
-    if(!id)return;
+    var id=e.target&&e.target.getAttribute&&e.target.getAttribute('data-id');if(!id)return;
     if(e.target.getAttribute('data-sure')!=='1'){
-      e.target.setAttribute('data-sure','1');e.target.textContent='בטוח? לחץ שוב';
-      setTimeout(function(){if(e.target){e.target.setAttribute('data-sure','0');e.target.textContent='מחק'}},3000);
-      return;
+      var b=e.target;b.setAttribute('data-sure','1');b.textContent='בטוח? לחץ שוב';
+      setTimeout(function(){b.setAttribute('data-sure','0');b.textContent='מחק'},3000);return;
     }
-    log=log.filter(function(x){return x.id!==id});if(deleted.indexOf(id)<0)deleted.push(id);persist();render();sync();
+    log=log.filter(function(x){return x.id!==id});
+    if(deleted.indexOf(id)<0)deleted.push(id);
+    persist();render();sync();
   });
+  ['sys','dia','pul','glu'].forEach(function(i){$(i).addEventListener('input',live)});
+  $('ctx').addEventListener('change',live);
+
+  // ---- backup (optional)
   $('exp').addEventListener('click',function(){
-    var b=$('backup'),txt=JSON.stringify(log);
-    b.style.display='block';b.value=txt;b.select();
-    try{
-      navigator.clipboard.writeText(txt).then(function(){toast('הגיבוי הועתק')},function(){toast('סמן והעתק ידנית')});
-    }catch(e){toast('סמן והעתק ידנית')}
+    var b=$('backup'),txt=JSON.stringify(log);b.style.display='block';b.value=txt;b.select();
+    try{navigator.clipboard.writeText(txt).then(function(){toast('הגיבוי הועתק')},function(){toast('סמן והעתק ידנית')})}catch(e){toast('סמן והעתק ידנית')}
   });
   $('imp').addEventListener('click',function(){
     var b=$('backup');
     if(b.style.display!=='block'){b.style.display='block';b.value='';b.focus();toast('הדבק גיבוי ולחץ שוב');return}
     try{
-      var a=JSON.parse(b.value);
-      if(!Array.isArray(a))throw 0;
+      var a=JSON.parse(b.value);if(!Array.isArray(a))throw 0;
       var ids={};log.forEach(function(x){ids[x.id]=1});
       a.forEach(function(x){if(x&&x.id&&x.d&&x.t&&!ids[x.id])log.push(x)});
-      persist();render();sync();toast('שוחזר ✓');b.value='';b.style.display='none';
+      persist();render();sync();toast('שוחזר');b.value='';b.style.display='none';
     }catch(e){toast('הגיבוי לא תקין')}
   });
-  ['sys','dia','pul','glu'].forEach(function(i){$(i).addEventListener('input',live)});
-  $('ctx').addEventListener('change',live);
 
-
-  // ---- cloud sync via GitHub contents API (private repo, file data.json)
+  // ---- cloud sync via GitHub contents API
   function b64enc(str){var b=new TextEncoder().encode(str),s='';for(var i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s)}
   function b64dec(str){var s=atob(str.replace(/\s/g,'')),b=new Uint8Array(s.length);for(var i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return new TextDecoder().decode(b)}
-  function setState(t,c){var e=$('syncState');e.textContent=t;e.style.color=c||'var(--mut)'}
+  function setState(t,c,dot){var e=$('syncState');e.textContent=t;e.style.color=c||'var(--mut)';$('dot').style.display=dot?'block':'none'}
   function merge(remote){
     var del={};deleted.concat(remote.deleted||[]).forEach(function(i){del[i]=1});
-    var map={};
-    (remote.log||[]).concat(log).forEach(function(x){if(x&&x.id&&!del[x.id])map[x.id]=x});
-    deleted=Object.keys(del);
-    log=Object.keys(map).map(function(k){return map[k]});
+    var map={};(remote.log||[]).concat(log).forEach(function(x){if(x&&x.id&&!del[x.id])map[x.id]=x});
+    deleted=Object.keys(del);log=Object.keys(map).map(function(k){return map[k]});
   }
   function sync(){
     var c=getCfg();
-    if(!c.repo||!c.tok){setState('');return Promise.resolve()}
+    if(!c.repo||!c.tok){setState('',null,false);return Promise.resolve()}
     if(busy)return Promise.resolve();
     busy=true;setState('מסנכרן…');
     var url='https://api.github.com/repos/'+c.repo+'/contents/data.json';
@@ -341,15 +439,16 @@ button{font:inherit;cursor:pointer;border:0}
       return r.json().then(function(j){sha=j.sha;try{return JSON.parse(b64dec(j.content))}catch(e){return{log:[],deleted:[]}}});
     }).then(function(remote){
       merge(remote);persist();render();
-      var body={message:'update '+new Date().toISOString(),content:b64enc(JSON.stringify({log:log,deleted:deleted})),};
+      var body={message:'update '+new Date().toISOString(),content:b64enc(JSON.stringify({log:log,deleted:deleted}))};
       if(sha)body.sha=sha;
       return fetch(url,{method:'PUT',headers:H,body:JSON.stringify(body)}).then(function(r){
-        if(!r.ok)throw new Error(r.status);return r.json().then(function(j){sha=j.content&&j.content.sha;});
+        if(!r.ok)throw new Error(r.status);return r.json().then(function(j){sha=j.content&&j.content.sha});
       });
     }).then(function(){
-      var n=new Date();setState('מסונכרן ✓ '+pad(n.getHours())+':'+pad(n.getMinutes()),'var(--ok)');
+      var n=new Date();setState('מסונכרן '+pad(n.getHours())+':'+pad(n.getMinutes()),'var(--ok)',true);
     }).catch(function(e){
-      setState(e&&e.message==='401'||e&&e.message==='403'?'שגיאת הרשאה בטוקן':e&&e.message==='404'?'המאגר לא נמצא':'אין חיבור, נשמר מקומית','var(--warn)');
+      var m=e&&e.message;
+      setState(m==='401'||m==='403'?'שגיאת הרשאה בטוקן':m==='404'?'המאגר לא נמצא':'אין חיבור, נשמר מקומית','var(--warn)',false);
     }).then(function(){busy=false});
   }
   $('cfgSave').addEventListener('click',function(){
@@ -363,6 +462,7 @@ button{font:inherit;cursor:pointer;border:0}
   if('serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js')}catch(e){}}
 
   load();setNow();live();render();
+  try{$('hdate').textContent=new Date().toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long'})}catch(e){}
   (function(){var c=getCfg();if(c.repo)$('cfgRepo').value=c.repo;sync()})();
 })();
 </script>
