@@ -111,6 +111,16 @@ body{background:linear-gradient(180deg,#ffe3ea 0,#fff1e0 170px,var(--bg) 380px) 
 nav button.on{color:#ff2d6f}
 .save{background:linear-gradient(135deg,#ff2d6f,#ff7a45);color:#fff}
 .chipb.on{background:linear-gradient(135deg,#ff2d6f,#ff7a45);color:#fff}
+
+.rgc{border-radius:20px;background:var(--card);padding:16px;margin-bottom:12px}
+.rgc h2{font-size:16px;margin:0 0 4px;font-weight:700}
+.rgc .sub{font-size:12.5px;color:var(--mut);margin:0 0 10px}
+.rg{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.rg:first-of-type{border-top:0}
+.rg i{width:12px;height:12px;border-radius:50%;flex:none}
+.rg b{flex:1;font-size:15px;font-weight:600}
+.rg span{font-size:13px;color:var(--mut);text-align:end}
+.rgn{font-size:13px;color:var(--mut);line-height:1.6;padding:4px 6px 0}
 </style>
 </head>
 <body>
@@ -169,6 +179,36 @@ nav button.on{color:#ff2d6f}
     <div id="list"></div>
   </section>
 
+  <section class="view" id="vRanges">
+    <div class="rgc">
+      <h2 style="color:var(--bp)">לחץ דם</h2>
+      <p class="sub">בטיפול תרופתי, מודדים מול יעד של מתחת ל-130/80</p>
+      <div class="rg"><i style="background:#30a14e"></i><b>מתחת ל-130/80</b><span>בטווח היעד</span></div>
+      <div class="rg"><i style="background:#ff9f0a"></i><b>130/80 עד 139/89</b><span>מעט גבוה</span></div>
+      <div class="rg"><i style="background:#ff453a"></i><b>140/90 ומעלה</b><span>גבוה</span></div>
+      <div class="rg"><i style="background:#0a84ff"></i><b>מתחת ל-90/60</b><span>נמוך</span></div>
+      <div class="rg"><i style="background:#8b0000"></i><b>180/120 ומעלה</b><span>לפנות לרופא</span></div>
+    </div>
+    <div class="rgc">
+      <h2 style="color:var(--glu)">סוכר (mg/dL)</h2>
+      <p class="sub">סוכרת סוג 2</p>
+      <div class="rg"><i style="background:#30a14e"></i><b>צום או לפני ארוחה</b><span>80 עד 130</span></div>
+      <div class="rg"><i style="background:#30a14e"></i><b>שעתיים אחרי ארוחה</b><span>מתחת ל-180</span></div>
+      <div class="rg"><i style="background:#30a14e"></i><b>לפני שינה</b><span>100 עד 140</span></div>
+      <div class="rg"><i style="background:#0a84ff"></i><b>מתחת ל-70</b><span>נמוך</span></div>
+      <div class="rg"><i style="background:#ff453a"></i><b>מעל 250</b><span>גבוה מאוד</span></div>
+      <div class="rgn"><b style="color:var(--txt)">סוכר נמוך:</b> לאכול או לשתות משהו מתוק (מיץ, סוכר) ולמדוד שוב אחרי 15 דקות.<br><b style="color:var(--txt)">מעל 250 פעמיים ברצף</b>, או צמא חזק, בחילה וחולשה: לפנות לרופא.</div>
+    </div>
+    <div class="rgc">
+      <h2 style="color:var(--pul)">דופק</h2>
+      <p class="sub">במנוחה, פעימות בדקה</p>
+      <div class="rg"><i style="background:#30a14e"></i><b>60 עד 100</b><span>תקין</span></div>
+      <div class="rg"><i style="background:#0a84ff"></i><b>מתחת ל-60</b><span>נמוך</span></div>
+      <div class="rg"><i style="background:#ff9f0a"></i><b>מעל 100</b><span>גבוה</span></div>
+    </div>
+    <div class="rgn" style="margin-bottom:10px">הטווחים כלליים. היעד האישי שלך נקבע על ידי הרופא, ואם יש הנחיה אחרת כדאי ללכת לפיה.</div>
+  </section>
+
   <section class="view" id="vCharts">
     <div class="chips" id="rangeChips">
       <button class="chipb on" data-days="7">7 ימים</button>
@@ -185,6 +225,7 @@ nav button.on{color:#ff2d6f}
   <button id="nAdd" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>מדידה</button>
   <button id="nLog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>יומן</button>
   <button id="nCharts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>גרפים</button>
+  <button id="nRanges"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>טווחים</button>
 </nav>
 
 <div class="sheet" id="sheet">
@@ -200,19 +241,6 @@ nav button.on{color:#ff2d6f}
     <input id="cfgTok" type="password" placeholder="github_pat_..." style="direction:ltr;font-size:15px;font-weight:500">
     <div class="tools"><button id="cfgSave">שמור וסנכרן</button><button id="syncNow">סנכרן עכשיו</button></div>
     <p class="legend">מזינים פעם אחת בכל מכשיר. הנתונים נשמרים במאגר פרטי בלבד.</p>
-  </div>
-  <div class="card">
-    <h2>טווחי יעד</h2>
-    <div class="legend" style="margin:0">
-      <b>לחץ דם (בטיפול):</b> יעד מתחת ל-130/80, בין 130/80 ל-139/89 מעט גבוה, מ-140/90 גבוה<br>
-      <b>דופק:</b> 60–100 תקין<br>
-      <b>סוכר בצום או לפני ארוחה:</b> 80–130<br>
-      <b>שעתיים אחרי ארוחה:</b> מתחת ל-180<br>
-      <b>לפני שינה:</b> 100–140<br>
-      <b>מתחת ל-70:</b> סוכר נמוך, לאכול משהו מתוק ולמדוד שוב אחרי 15 דקות<br>
-      <b>מעל 250 פעמיים ברצף או תסמינים חזקים:</b> לפנות לרופא<br>
-      הטווחים כלליים. היעד האישי נקבע על ידי הרופא.
-    </div>
   </div>
   <details>
     <summary>גיבוי ידני (לא חובה)</summary>
@@ -377,17 +405,18 @@ nav button.on{color:#ff2d6f}
 
   // ---- navigation
   function show(v){
-    ['Add','Log','Charts'].forEach(function(n){
+    ['Add','Log','Charts','Ranges'].forEach(function(n){
       $('v'+n).className='view'+(n===v?' on':'');
       $('n'+n).className=n===v?'on':'';
     });
-    $('title').textContent=v==='Add'?'מדידות':v==='Log'?'יומן':'גרפים';
+    $('title').textContent=v==='Add'?'מדידות':v==='Log'?'יומן':v==='Charts'?'גרפים':'טווחים';
     if(v==='Charts')renderCharts();
     window.scrollTo(0,0);
   }
   $('nAdd').addEventListener('click',function(){show('Add')});
   $('nLog').addEventListener('click',function(){show('Log')});
   $('nCharts').addEventListener('click',function(){show('Charts')});
+  $('nRanges').addEventListener('click',function(){show('Ranges')});
   $('rangeChips').addEventListener('click',function(e){
     var d=e.target&&e.target.getAttribute&&e.target.getAttribute('data-days');if(!d)return;
     days=parseInt(d,10);
