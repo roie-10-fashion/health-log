@@ -132,6 +132,9 @@ nav button.on{color:#ff2d6f}
 .meal .act{background:var(--field);color:var(--txt);border-radius:12px;padding:7px 12px;font-weight:700;font-size:13px;text-decoration:none;display:inline-block}
 .meal .act.pri{background:linear-gradient(135deg,#7a5cff,#2f9bff);color:#fff}
 nav button{font-size:11px}
+.dt{display:flex;align-items:center;gap:3px;direction:ltr}
+.dt select{flex:1;min-width:0;-webkit-appearance:none;appearance:none;text-align:center;text-align-last:center;font-size:18px;font-weight:700;padding:13px 0;background-image:none}
+.dt span{color:var(--mut);font-weight:700;font-size:16px}
 </style>
 </head>
 <body>
@@ -156,8 +159,8 @@ nav button{font-size:11px}
     <div class="card">
       <h2>מדידה חדשה</h2>
       <div class="row">
-        <div><label>תאריך</label><input type="date" id="d"></div>
-        <div><label>שעה</label><input type="time" id="t"></div>
+        <div><label>תאריך</label><div class="dt" data-kind="date" data-for="d"></div><input type="hidden" id="d"></div>
+        <div><label>שעה</label><div class="dt" data-kind="time" data-for="t"></div><input type="hidden" id="t"></div>
       </div>
       <div class="sep"></div>
       <div class="row3">
@@ -191,8 +194,8 @@ nav button{font-size:11px}
     <div class="card">
       <h2>ארוחה חדשה</h2>
       <div class="row">
-        <div><label>תאריך</label><input type="date" id="fdate"></div>
-        <div><label>שעה</label><input type="time" id="ftime"></div>
+        <div><label>תאריך</label><div class="dt" data-kind="date" data-for="fdate"></div><input type="hidden" id="fdate"></div>
+        <div><label>שעה</label><div class="dt" data-kind="time" data-for="ftime"></div><input type="hidden" id="ftime"></div>
       </div>
       <div style="margin-top:10px"><label>סוג</label>
         <select id="fkind">
@@ -306,7 +309,32 @@ nav button{font-size:11px}
   function getCfg(){try{return JSON.parse(localStorage.getItem(CFG)||'{}')}catch(e){return{}}}
   function persist(){try{localStorage.setItem(KEY,JSON.stringify(log));localStorage.setItem(KEY+'-del',JSON.stringify(deleted));return true}catch(e){return false}}
   function toast(m){var t=$('toast');t.textContent=m;t.className='toast show';setTimeout(function(){t.className='toast'},2000)}
-  function setNow(){var n=new Date(),dv=n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate()),tv=pad(n.getHours())+':'+pad(n.getMinutes());$('d').value=dv;$('t').value=tv;$('fdate').value=dv;$('ftime').value=tv}
+  function buildDT(box){
+    var kind=box.getAttribute('data-kind'),y=new Date().getFullYear();
+    var defs=kind==='date'?[[1,31],[1,12],[y-1,y+1]]:[[0,23],[0,59]],sels=[];
+    defs.forEach(function(r,i){
+      if(i>0){var sp=document.createElement('span');sp.textContent=kind==='date'?'/':':';box.appendChild(sp)}
+      var sel=document.createElement('select');
+      for(var v=r[0];v<=r[1];v++){var o=document.createElement('option');var big=(kind==='date'&&i===2);o.value=big?''+v:pad(v);o.textContent=o.value;sel.appendChild(o)}
+      sel.addEventListener('change',function(){storeDT(box)});
+      box.appendChild(sel);sels.push(sel);
+    });
+    box._sels=sels;
+  }
+  function storeDT(box){
+    var id=box.getAttribute('data-for'),S=box._sels;
+    if(box.getAttribute('data-kind')==='date'){
+      var dd=parseInt(S[0].value,10),mm=parseInt(S[1].value,10),yy=parseInt(S[2].value,10),dim=new Date(yy,mm,0).getDate();
+      if(dd>dim){dd=dim;S[0].value=pad(dd)}
+      $(id).value=yy+'-'+pad(mm)+'-'+pad(dd);
+    }else $(id).value=S[0].value+':'+S[1].value;
+  }
+  function syncDT(id){
+    var box=document.querySelector('.dt[data-for="'+id+'"]'),v=$(id).value,S=box._sels;
+    if(box.getAttribute('data-kind')==='date'){var p=v.split('-');S[0].value=pad(parseInt(p[2],10));S[1].value=pad(parseInt(p[1],10));S[2].value=''+parseInt(p[0],10)}
+    else{var q=v.split(':');S[0].value=q[0];S[1].value=q[1]}
+  }
+  function setNow(){var n=new Date(),dv=n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate()),tv=pad(n.getHours())+':'+pad(n.getMinutes());$('d').value=dv;$('t').value=tv;$('fdate').value=dv;$('ftime').value=tv;['d','t','fdate','ftime'].forEach(syncDT)}
   function ts(x){return new Date(x.d+'T'+x.t).getTime()}
   function fd(d){var p=d.split('-');return p[2]+'.'+p[1]+'.'+p[0]}
   function sdate(t){var n=new Date(t);return pad(n.getDate())+'.'+pad(n.getMonth()+1)}
@@ -601,6 +629,7 @@ nav button{font-size:11px}
   document.addEventListener('visibilitychange',function(){if(!document.hidden)sync()});
   if('serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js')}catch(e){}}
 
+  Array.prototype.forEach.call(document.querySelectorAll('.dt'),buildDT);
   load();setNow();live();render();$('title').textContent=greet();setInterval(function(){renderMeals();if($('vAdd').className.indexOf('on')>-1)$('title').textContent=greet()},60000);
   try{$('hdate').textContent=new Date().toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long'})}catch(e){}
   (function(){var c=getCfg();if(c.repo)$('cfgRepo').value=c.repo;sync()})();
