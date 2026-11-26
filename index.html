@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>יומן לחץ דם וסוכר</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#f2f2f7">
+<meta name="theme-color" content="#ffe3ea">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>
@@ -92,12 +92,35 @@ details summary{cursor:pointer;color:var(--mut);font-size:14px;margin-top:6px}
 #backup{width:100%;height:100px;margin-top:10px;font-size:12px;direction:ltr;text-align:left;display:none}
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#000d;color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:20}
 .toast.show{opacity:1}
+
+body{background:linear-gradient(180deg,#ffe3ea 0,#fff1e0 170px,var(--bg) 380px) no-repeat,var(--bg)}
+@media (prefers-color-scheme: dark){body{background:linear-gradient(180deg,#3a0f1c 0,#2a1a0a 170px,var(--bg) 380px) no-repeat,var(--bg)}}
+.brand{display:flex;align-items:center;gap:10px}
+.heart{width:44px;height:44px;flex:none;animation:beat 1.2s ease-in-out infinite;transform-origin:center}
+@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.14)}30%{transform:scale(1)}45%{transform:scale(1.1)}60%{transform:scale(1)}}
+.drop{width:26px;height:26px;flex:none;margin-inline-start:-4px;align-self:flex-end}
+.tile{color:#fff;border:0;box-shadow:0 6px 16px rgba(0,0,0,.10)}
+.tile.bp{background:linear-gradient(135deg,#ff2d6f,#ff7a45)}
+.tile.glu{background:linear-gradient(135deg,#ffae00,#ff6a00)}
+.tile.pul{background:linear-gradient(135deg,#7a5cff,#2f9bff)}
+.tile .lab{color:#fff!important;opacity:.95}
+.tile .unit{color:#ffffffcc}
+.tile .meta{color:#ffffffdd}
+.st{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:#fff}
+.st i{width:9px;height:9px;border-radius:50%;display:inline-block;border:2px solid #fff}
+nav button.on{color:#ff2d6f}
+.save{background:linear-gradient(135deg,#ff2d6f,#ff7a45);color:#fff}
+.chipb.on{background:linear-gradient(135deg,#ff2d6f,#ff7a45);color:#fff}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div><div class="hdate" id="hdate"></div><h1 id="title">מדידות</h1></div>
+    <div class="brand">
+      <svg class="heart" viewBox="0 0 64 64" role="img" aria-label="לב"><defs><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5a7a"/><stop offset="1" stop-color="#e0113f"/></linearGradient></defs><path d="M32 58C10 42 4 29 4 20 4 12 10 6 18 6c6 0 11 3 14 8 3-5 8-8 14-8 8 0 14 6 14 14 0 9-6 22-28 38z" fill="url(#hg)"/><path d="M14 18c1-4 4-6 8-6" stroke="#fff" stroke-opacity=".6" stroke-width="3" stroke-linecap="round" fill="none"/></svg>
+      <svg class="drop" viewBox="0 0 32 32" role="img" aria-label="טיפת דם"><defs><linearGradient id="dg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb100"/><stop offset="1" stop-color="#ff6a00"/></linearGradient></defs><path d="M16 3C11 11 6 16 6 21a10 10 0 0 0 20 0c0-5-5-10-10-18z" fill="url(#dg)"/><path d="M11 21a5 5 0 0 0 4 5" stroke="#fff" stroke-opacity=".7" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+      <div><div class="hdate" id="hdate"></div><h1 id="title">מדידות</h1></div>
+    </div>
     <button class="gear" id="gear" aria-label="הגדרות">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
       <span class="dot" id="dot"></span>
@@ -105,8 +128,8 @@ details summary{cursor:pointer;color:var(--mut);font-size:14px;margin-top:6px}
   </header>
 
   <section class="view on" id="vAdd">
-    <div class="tile" id="tBP"></div>
-    <div class="tiles2"><div class="tile" id="tGlu"></div><div class="tile" id="tPul"></div></div>
+    <div class="tile bp" id="tBP"></div>
+    <div class="tiles2"><div class="tile glu" id="tGlu"></div><div class="tile pul" id="tPul"></div></div>
 
     <div class="card">
       <h2>מדידה חדשה</h2>
@@ -257,11 +280,10 @@ details summary{cursor:pointer;color:var(--mut);font-size:14px;margin-top:6px}
   // ---- tiles (latest values)
   function sorted(){return log.slice().sort(function(a,b){return ts(b)-ts(a)})}
   function tile(el,color,label,numTxt,unit,r,when){
-    el.innerHTML='';
-    var h='<div class="lab" style="color:'+color+'">'+label+'</div>'+
+    var dot=r?{ok:'#4ade80',warn:'#fde047',bad:'#ff453a',low:'#60a5fa'}[r[0]]:'transparent';
+    el.innerHTML='<div class="lab">'+label+'</div>'+
       '<div class="big"><span class="num">'+numTxt+'</span><span class="unit">'+unit+'</span></div>'+
-      '<div class="meta"><span class="'+(r?r[0]:'')+'" style="font-weight:600">'+(r?r[1]:'אין מדידה')+'</span><span>'+when+'</span></div>';
-    el.innerHTML=h;
+      '<div class="meta"><span class="st"><i style="background:'+dot+'"></i>'+(r?r[1]:'אין מדידה')+'</span><span>'+when+'</span></div>';
   }
   function renderTiles(){
     var S=sorted();
