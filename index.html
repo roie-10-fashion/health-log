@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>יומן לחץ דם וסוכר</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0e2a35">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#0e2a35; --bg2:#14404a; --card:#ffffff14; --line:#ffffff26;
+  --txt:#f2f8f8; --mut:#a9c4c8; --acc:#5eead4; --acc2:#2dd4bf;
+  --ok:#4ade80; --warn:#fbbf24; --bad:#f87171; --low:#60a5fa;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{
+  font-family:'Heebo',system-ui,sans-serif; color:var(--txt);
+  background:linear-gradient(160deg,var(--bg1),var(--bg2)) fixed; min-height:100vh;
+  padding:max(16px,env(safe-area-inset-top)) 14px max(28px,env(safe-area-inset-bottom));
+}
+.wrap{max-width:480px;margin:0 auto}
+h1{font-size:24px;font-weight:800;margin:6px 4px 2px}
+.sub{color:var(--mut);font-size:14px;margin:0 4px 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:14px;backdrop-filter:blur(8px)}
+.card h2{font-size:16px;margin:0 0 12px;font-weight:700}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+label{display:block;font-size:12.5px;color:var(--mut);margin-bottom:5px}
+input,select,textarea{
+  width:100%;font:inherit;font-size:18px;font-weight:600;color:var(--txt);
+  background:#00000033;border:1px solid var(--line);border-radius:14px;padding:12px 10px;outline:none;text-align:center
+}
+select{font-size:15px;text-align:start;padding-inline:10px}
+select option{color:#111}
+textarea{font-size:15px;font-weight:400;text-align:start;resize:none}
+input:focus,select:focus,textarea:focus{border-color:var(--acc)}
+input[type=date],input[type=time]{font-size:15px}
+.hint{font-size:12.5px;margin-top:6px;min-height:18px;font-weight:500}
+.sep{height:1px;background:var(--line);margin:14px 0}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:700}
+.ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)} .low{color:var(--low)}
+.bg-ok{background:#4ade8026;color:var(--ok)} .bg-warn{background:#fbbf2426;color:var(--warn)}
+.bg-bad{background:#f8717126;color:var(--bad)} .bg-low{background:#60a5fa26;color:var(--low)}
+button{font:inherit;cursor:pointer;border:0}
+.save{width:100%;margin-top:14px;padding:15px;border-radius:16px;font-weight:800;font-size:17px;color:#04302b;
+  background:linear-gradient(135deg,var(--acc),var(--acc2))}
+.save:active{transform:scale(.98)}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center}
+.stat b{display:block;font-size:22px;font-weight:800}
+.stat span{font-size:12px;color:var(--mut)}
+.entry{border-top:1px solid var(--line);padding:12px 0}
+.entry:first-child{border-top:0}
+.entry .top{display:flex;justify-content:space-between;align-items:center;color:var(--mut);font-size:13px}
+.entry .vals{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:6px;align-items:center}
+.val{font-size:19px;font-weight:800}
+.val small{font-size:12px;font-weight:500;color:var(--mut);margin-inline-start:3px}
+.del{background:none;color:var(--mut);font-size:13px;padding:2px 6px}
+.note{color:var(--mut);font-size:13px;margin-top:4px}
+.tools{display:flex;gap:10px}
+.tools button{flex:1;padding:11px;border-radius:14px;background:#ffffff1a;color:var(--txt);font-weight:600;border:1px solid var(--line)}
+.empty{color:var(--mut);text-align:center;padding:18px 0;font-size:14px}
+.legend{font-size:12.5px;color:var(--mut);line-height:1.8}
+.legend b{color:var(--txt)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;transition:.25s;pointer-events:none}
+.toast.show{opacity:1}
+#backup{width:100%;height:110px;margin-top:10px;font-size:12px;direction:ltr;text-align:left;display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🫀 יומן מדידות</h1>
+  <p class="sub">לחץ דם · דופק · סוכר <span id="syncState" style="margin-inline-start:8px"></span></p>
+
+  <div class="card">
+    <h2>מדידה חדשה</h2>
+    <div class="row">
+      <div><label>תאריך</label><input type="date" id="d"></div>
+      <div><label>שעה</label><input type="time" id="t"></div>
+    </div>
+    <div class="sep"></div>
+
+    <div class="row3">
+      <div><label>סיסטולי (עליון)</label><input type="number" inputmode="numeric" id="sys" placeholder="126"></div>
+      <div><label>דיאסטולי (תחתון)</label><input type="number" inputmode="numeric" id="dia" placeholder="84"></div>
+      <div><label>דופק</label><input type="number" inputmode="numeric" id="pul" placeholder="70"></div>
+    </div>
+    <div class="hint" id="hBP"></div>
+    <div class="hint" id="hPul"></div>
+
+    <div class="sep"></div>
+    <div class="row">
+      <div><label>סוכר (mg/dL)</label><input type="number" inputmode="numeric" id="glu" placeholder="106"></div>
+      <div><label>מתי נמדד</label>
+        <select id="ctx">
+          <option value="fast">צום (בוקר)</option>
+          <option value="pre">לפני ארוחה</option>
+          <option value="post">שעתיים אחרי ארוחה</option>
+          <option value="bed">לפני שינה</option>
+        </select>
+      </div>
+    </div>
+    <div class="hint" id="hGlu"></div>
+
+    <div class="sep"></div>
+    <label>הערה (לא חובה)</label>
+    <textarea id="note" rows="2" placeholder="למשל: אחרי קפה, אחרי הכדור, לחוץ..."></textarea>
+    <button class="save" id="save">שמור מדידה</button>
+  </div>
+
+  <div class="card">
+    <h2>ממוצע 7 ימים אחרונים</h2>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <div class="card">
+    <h2>היסטוריה</h2>
+    <div id="list"></div>
+  </div>
+
+  <div class="card">
+    <h2>סנכרון בין מכשירים</h2>
+    <label>מאגר נתונים פרטי (owner/name)</label>
+    <input id="cfgRepo" placeholder="roie-10-fashion/health-data" style="direction:ltr;font-size:15px;font-weight:500">
+    <label style="margin-top:10px">טוקן גישה</label>
+    <input id="cfgTok" type="password" placeholder="github_pat_..." style="direction:ltr;font-size:15px;font-weight:500">
+    <div class="tools" style="margin-top:12px">
+      <button id="cfgSave">שמור וסנכרן</button>
+      <button id="syncNow">סנכרן עכשיו</button>
+    </div>
+    <p class="legend" style="margin:10px 0 0">את ההגדרות האלה מזינים פעם אחת בכל מכשיר. הנתונים נשמרים במאגר פרטי בלבד.</p>
+  </div>
+
+  <div class="card">
+    <h2>גיבוי</h2>
+    <div class="tools">
+      <button id="exp">העתק גיבוי</button>
+      <button id="imp">שחזר מגיבוי</button>
+    </div>
+    <textarea id="backup" placeholder="הדבק כאן גיבוי ולחץ שוב על שחזר"></textarea>
+    <p class="legend" style="margin:10px 0 0">הנתונים נשמרים בדפדפן של הטלפון הזה בלבד. מומלץ להעתיק גיבוי מדי פעם ולשמור בהערות.</p>
+  </div>
+
+  <div class="card">
+    <h2>טווחי יעד</h2>
+    <div class="legend">
+      <b>לחץ דם (בטיפול):</b> יעד מתחת ל-130/80 · 130–139 / 80–89 מעט גבוה · 140/90 ומעלה גבוה<br>
+      <b>דופק:</b> 60–100 תקין<br>
+      <b>סוכר בצום / לפני ארוחה:</b> 80–130<br>
+      <b>שעתיים אחרי ארוחה:</b> מתחת ל-180<br>
+      <b>לפני שינה:</b> 100–140<br>
+      <b>מתחת ל-70:</b> סוכר נמוך, לאכול משהו מתוק ולמדוד שוב אחרי 15 דקות<br>
+      <b>מעל 250 פעמיים ברצף או תסמינים חזקים:</b> לפנות לרופא<br>
+      הטווחים כלליים. היעד האישי שלך נקבע על ידי הרופא.
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var KEY='bpsugar-log-v1';
+  var CTX={fast:'צום',pre:'לפני ארוחה',post:'שעתיים אחרי ארוחה',bed:'לפני שינה'};
+  var $=function(i){return document.getElementById(i)};
+  var log=[];
+  var deleted=[];
+  var CFG='bpsugar-cfg-v1', sha=null, busy=false;
+
+  function load(){
+    try{var s=localStorage.getItem(KEY);log=s?JSON.parse(s):[]}catch(e){log=[]}
+    if(!Array.isArray(log))log=[];
+    try{var d=localStorage.getItem(KEY+'-del');deleted=d?JSON.parse(d):[]}catch(e){deleted=[]}
+    if(!Array.isArray(deleted))deleted=[];
+  }
+  function getCfg(){try{return JSON.parse(localStorage.getItem(CFG)||'{}')}catch(e){return{}}}
+  function persist(){
+    try{localStorage.setItem(KEY,JSON.stringify(log));localStorage.setItem(KEY+'-del',JSON.stringify(deleted));return true}catch(e){return false}
+  }
+  function toast(m){var t=$('toast');t.textContent=m;t.className='toast show';setTimeout(function(){t.className='toast'},2000)}
+  function pad(n){return n<10?'0'+n:''+n}
+  function setNow(){
+    var n=new Date();
+    $('d').value=n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate());
+    $('t').value=pad(n.getHours())+':'+pad(n.getMinutes());
+  }
+
+  // ---- classification: returns [cssClass, text]
+  function clsBP(s,d){
+    if(!s||!d)return null;
+    if(s>=180||d>=120)return['bad','גבוה מאוד, לפנות לרופא'];
+    if(s>=140||d>=90)return['bad','גבוה'];
+    if(s>=130||d>=80)return['warn','מעט מעל היעד'];
+    if(s<90||d<60)return['low','נמוך'];
+    return['ok','בטווח היעד'];
+  }
+  function clsPul(p){
+    if(!p)return null;
+    if(p<60)return['low','דופק נמוך'];
+    if(p>100)return['warn','דופק גבוה'];
+    return['ok','דופק תקין'];
+  }
+  function clsGlu(g,c){
+    if(!g)return null;
+    if(g<70)return['low','נמוך, לאכול משהו מתוק'];
+    if(g>250)return['bad','גבוה מאוד'];
+    if(c==='post'){
+      if(g<180)return['ok','בטווח היעד'];
+      return['warn','מעל היעד (180)'];
+    }
+    if(c==='bed'){
+      if(g>=100&&g<=140)return['ok','בטווח היעד'];
+      if(g<100)return['warn','מעט נמוך לפני שינה'];
+      return['warn','מעל היעד'];
+    }
+    if(g>=80&&g<=130)return['ok','בטווח היעד'];
+    if(g<80)return['warn','בגבול התחתון'];
+    return['warn','מעל היעד (130)'];
+  }
+  function num(id){var v=parseInt($(id).value,10);return isNaN(v)?null:v}
+  function hint(id,r,pre){
+    var e=$(id);
+    if(!r){e.textContent='';e.className='hint';return}
+    e.textContent=(pre||'')+r[1];e.className='hint '+r[0];
+  }
+  function live(){
+    hint('hBP',clsBP(num('sys'),num('dia')),'לחץ דם: ');
+    hint('hPul',clsPul(num('pul')));
+    hint('hGlu',clsGlu(num('glu'),$('ctx').value),'סוכר: ');
+  }
+
+  // ---- render
+  function chip(r){return r?'<span class="chip bg-'+r[0]+'">'+r[1]+'</span>':''}
+  function fmtDate(d,t){
+    var p=d.split('-');return p[2]+'.'+p[1]+'.'+p[0]+' · '+t;
+  }
+  function render(){
+    var L=$('list');L.textContent='';
+    if(!log.length){var e=document.createElement('div');e.className='empty';e.textContent='עדיין אין מדידות. הוסף את הראשונה למעלה.';L.appendChild(e)}
+    var sorted=log.slice().sort(function(a,b){return (b.d+b.t).localeCompare(a.d+a.t)});
+    sorted.forEach(function(x){
+      var div=document.createElement('div');div.className='entry';
+      var h='<div class="top"><span>'+fmtDate(x.d,x.t)+'</span><button class="del" data-id="'+x.id+'">מחק</button></div><div class="vals">';
+      if(x.sys&&x.dia){
+        var r=clsBP(x.sys,x.dia);
+        h+='<span class="val '+r[0]+'">'+x.sys+'/'+x.dia+'<small>לחץ דם</small></span>';
+      }
+      if(x.pul){var rp=clsPul(x.pul);h+='<span class="val '+rp[0]+'">'+x.pul+'<small>דופק</small></span>'}
+      if(x.glu){var rg=clsGlu(x.glu,x.ctx);h+='<span class="val '+rg[0]+'">'+x.glu+'<small>סוכר · '+CTX[x.ctx]+'</small></span>'}
+      h+='</div>';
+      div.innerHTML=h;
+      if(x.note){var n=document.createElement('div');n.className='note';n.textContent=x.note;div.appendChild(n)}
+      L.appendChild(div);
+    });
+    // stats
+    var since=new Date();since.setDate(since.getDate()-7);
+    var key=since.getFullYear()+'-'+pad(since.getMonth()+1)+'-'+pad(since.getDate());
+    var w=log.filter(function(x){return x.d>=key});
+    function avg(a){return a.length?Math.round(a.reduce(function(s,v){return s+v},0)/a.length):null}
+    var s=avg(w.filter(function(x){return x.sys}).map(function(x){return x.sys}));
+    var d=avg(w.filter(function(x){return x.dia}).map(function(x){return x.dia}));
+    var p=avg(w.filter(function(x){return x.pul}).map(function(x){return x.pul}));
+    var g=avg(w.filter(function(x){return x.glu&&(x.ctx==='fast'||x.ctx==='pre')}).map(function(x){return x.glu}));
+    var bp=(s&&d)?clsBP(s,d):null, gl=g?clsGlu(g,'fast'):null;
+    $('stats').innerHTML=
+      '<div class="stat"><b class="'+(bp?bp[0]:'')+'">'+((s&&d)?s+'/'+d:'–')+'</b><span>לחץ דם</span></div>'+
+      '<div class="stat"><b>'+(p||'–')+'</b><span>דופק</span></div>'+
+      '<div class="stat"><b class="'+(gl?gl[0]:'')+'">'+(g||'–')+'</b><span>סוכר צום/לפני ארוחה</span></div>';
+  }
+
+  // ---- actions
+  $('save').addEventListener('click',function(){
+    var x={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+      d:$('d').value,t:$('t').value,sys:num('sys'),dia:num('dia'),pul:num('pul'),
+      glu:num('glu'),ctx:$('ctx').value,note:$('note').value.trim()};
+    if(!x.d||!x.t){toast('חסר תאריך או שעה');return}
+    if(!(x.sys&&x.dia)&&!x.pul&&!x.glu){toast('הכנס לפחות ערך אחד');return}
+    if((x.sys&&!x.dia)||(!x.sys&&x.dia)){toast('חסר ערך עליון או תחתון');return}
+    log.push(x);
+    var ok=persist();
+    ['sys','dia','pul','glu','note'].forEach(function(i){$(i).value=''});
+    setNow();live();render();sync();
+    toast(ok?'נשמר ✓':'נשמר לשימוש זמני בלבד');
+  });
+  $('list').addEventListener('click',function(e){
+    var id=e.target&&e.target.getAttribute&&e.target.getAttribute('data-id');
+    if(!id)return;
+    if(e.target.getAttribute('data-sure')!=='1'){
+      e.target.setAttribute('data-sure','1');e.target.textContent='בטוח? לחץ שוב';
+      setTimeout(function(){if(e.target){e.target.setAttribute('data-sure','0');e.target.textContent='מחק'}},3000);
+      return;
+    }
+    log=log.filter(function(x){return x.id!==id});if(deleted.indexOf(id)<0)deleted.push(id);persist();render();sync();
+  });
+  $('exp').addEventListener('click',function(){
+    var b=$('backup'),txt=JSON.stringify(log);
+    b.style.display='block';b.value=txt;b.select();
+    try{
+      navigator.clipboard.writeText(txt).then(function(){toast('הגיבוי הועתק')},function(){toast('סמן והעתק ידנית')});
+    }catch(e){toast('סמן והעתק ידנית')}
+  });
+  $('imp').addEventListener('click',function(){
+    var b=$('backup');
+    if(b.style.display!=='block'){b.style.display='block';b.value='';b.focus();toast('הדבק גיבוי ולחץ שוב');return}
+    try{
+      var a=JSON.parse(b.value);
+      if(!Array.isArray(a))throw 0;
+      var ids={};log.forEach(function(x){ids[x.id]=1});
+      a.forEach(function(x){if(x&&x.id&&x.d&&x.t&&!ids[x.id])log.push(x)});
+      persist();render();sync();toast('שוחזר ✓');b.value='';b.style.display='none';
+    }catch(e){toast('הגיבוי לא תקין')}
+  });
+  ['sys','dia','pul','glu'].forEach(function(i){$(i).addEventListener('input',live)});
+  $('ctx').addEventListener('change',live);
+
+
+  // ---- cloud sync via GitHub contents API (private repo, file data.json)
+  function b64enc(str){var b=new TextEncoder().encode(str),s='';for(var i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s)}
+  function b64dec(str){var s=atob(str.replace(/\s/g,'')),b=new Uint8Array(s.length);for(var i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return new TextDecoder().decode(b)}
+  function setState(t,c){var e=$('syncState');e.textContent=t;e.style.color=c||'var(--mut)'}
+  function merge(remote){
+    var del={};deleted.concat(remote.deleted||[]).forEach(function(i){del[i]=1});
+    var map={};
+    (remote.log||[]).concat(log).forEach(function(x){if(x&&x.id&&!del[x.id])map[x.id]=x});
+    deleted=Object.keys(del);
+    log=Object.keys(map).map(function(k){return map[k]});
+  }
+  function sync(){
+    var c=getCfg();
+    if(!c.repo||!c.tok){setState('');return Promise.resolve()}
+    if(busy)return Promise.resolve();
+    busy=true;setState('מסנכרן…');
+    var url='https://api.github.com/repos/'+c.repo+'/contents/data.json';
+    var H={'Authorization':'Bearer '+c.tok,'Accept':'application/vnd.github+json'};
+    return fetch(url,{headers:H,cache:'no-store'}).then(function(r){
+      if(r.status===404){sha=null;return{log:[],deleted:[]}}
+      if(!r.ok)throw new Error(r.status);
+      return r.json().then(function(j){sha=j.sha;try{return JSON.parse(b64dec(j.content))}catch(e){return{log:[],deleted:[]}}});
+    }).then(function(remote){
+      merge(remote);persist();render();
+      var body={message:'update '+new Date().toISOString(),content:b64enc(JSON.stringify({log:log,deleted:deleted})),};
+      if(sha)body.sha=sha;
+      return fetch(url,{method:'PUT',headers:H,body:JSON.stringify(body)}).then(function(r){
+        if(!r.ok)throw new Error(r.status);return r.json().then(function(j){sha=j.content&&j.content.sha;});
+      });
+    }).then(function(){
+      var n=new Date();setState('מסונכרן ✓ '+pad(n.getHours())+':'+pad(n.getMinutes()),'var(--ok)');
+    }).catch(function(e){
+      setState(e&&e.message==='401'||e&&e.message==='403'?'שגיאת הרשאה בטוקן':e&&e.message==='404'?'המאגר לא נמצא':'אין חיבור, נשמר מקומית','var(--warn)');
+    }).then(function(){busy=false});
+  }
+  $('cfgSave').addEventListener('click',function(){
+    var repo=$('cfgRepo').value.trim().replace(/^https?:\/\/github\.com\//,'').replace(/\.git$/,''),tok=$('cfgTok').value.trim();
+    if(!/^[\w.-]+\/[\w.-]+$/.test(repo)||!tok){toast('מלא מאגר בפורמט owner/name וטוקן');return}
+    try{localStorage.setItem(CFG,JSON.stringify({repo:repo,tok:tok}))}catch(e){toast('לא ניתן לשמור הגדרות');return}
+    $('cfgTok').value='';sync().then(function(){toast('הוגדר')});
+  });
+  $('syncNow').addEventListener('click',function(){sync()});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)sync()});
+  if('serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js')}catch(e){}}
+
+  load();setNow();live();render();
+  (function(){var c=getCfg();if(c.repo)$('cfgRepo').value=c.repo;sync()})();
+})();
+</script>
+</body>
+</html>
