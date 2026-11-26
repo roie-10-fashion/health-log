@@ -228,7 +228,7 @@ nav button{font-size:11px}
         <textarea id="fnote" rows="2" placeholder="למשל: אורז עם עוף וסלט"></textarea>
       </div>
       <button class="save" id="fSave">שמור ארוחה</button>
-      <p class="legend" style="margin:10px 0 0">אחרי שמירה תקבל כאן תזכורת למדוד סוכר שעתיים אחרי הארוחה.</p>
+      <p class="legend" style="margin:10px 0 0">אחרי שמירה תופיע כאן שעת המדידה, וכפתור שפותח את השעון עם התראה מוכנה.</p>
     </div>
     <div class="day">ארוחות אחרונות</div>
     <div id="mealList"></div>
@@ -534,12 +534,13 @@ nav button{font-size:11px}
     log.forEach(function(x){if(x.glu&&x.ctx==='post'){var t=ts(x);if(t>=a&&t<=b&&(!r||t<ts(r)))r=x}});
     return r;
   }
-  function gcal(m){
-    function f(t){var n=new Date(t);return n.getFullYear()+pad(n.getMonth()+1)+pad(n.getDate())+'T'+pad(n.getHours())+pad(n.getMinutes())+'00'}
-    var st=ts(m)+120*60000;
-    return'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('מדידת סוכר אחרי ארוחה')+
-      '&dates='+f(st)+'/'+f(st+15*60000)+'&details='+encodeURIComponent('שעתיים אחרי '+MEAL[m.meal]+(m.note?' ('+m.note+')':''));
+  function alarmLink(m){
+    var n=new Date(ts(m)+120*60000);
+    return'intent:#Intent;action=android.intent.action.SET_ALARM;i.android.intent.extra.alarm.HOUR='+n.getHours()+
+      ';i.android.intent.extra.alarm.MINUTES='+n.getMinutes()+
+      ';S.android.intent.extra.alarm.MESSAGE='+encodeURIComponent('מדידת סוכר אחרי ארוחה')+';end';
   }
+  function dueTxt(m){var n=new Date(ts(m)+120*60000);return pad(n.getHours())+':'+pad(n.getMinutes())}
   function renderMeals(){
     var L=$('mealList');L.textContent='';
     var ms=mealsList(),now=Date.now();
@@ -548,7 +549,7 @@ nav button{font-size:11px}
       var div=document.createElement('div');div.className='meal';
       var due=ts(m)+120*60000,post=postFor(m),st='';
       if(post){var r=clsGlu(post.glu,'post');st='<span class="'+r[0]+'">סוכר אחרי ארוחה: '+post.glu+' · '+r[1]+'</span>'}
-      else if(now<due){var mins=Math.ceil((due-now)/60000);st='<span>מדידה בעוד '+(mins>=60?Math.floor(mins/60)+' שעות ו-'+(mins%60)+' דק\'':mins+' דק\'')+'</span><a class="act pri" target="_blank" rel="noopener" href="'+gcal(m)+'">תזכורת בטלפון</a>'}
+      else if(now<due){var mins=Math.ceil((due-now)/60000);st='<span>מדידה ב-'+dueTxt(m)+' (בעוד '+(mins>=60?Math.floor(mins/60)+' שעות ו-'+(mins%60)+' דק\'':mins+' דק\'')+')</span><a class="act pri" href="'+alarmLink(m)+'">התראה בשעון</a>'}
       else if(now<due+4*3600000){st='<span class="warn">הגיע הזמן למדוד סוכר</span><button class="act pri" data-act="measure">מדוד עכשיו</button>'}
       else st='<span style="color:var(--mut)">לא נמדד אחרי הארוחה</span>';
       div.innerHTML='<div class="top"><span>'+fd(m.d).slice(0,5)+' · '+m.t+'</span><button class="del" data-id="'+m.id+'">מחק</button></div><div class="nm">'+MEAL[m.meal]+'</div>';
