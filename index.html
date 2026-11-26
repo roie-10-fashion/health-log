@@ -228,7 +228,7 @@ nav button{font-size:11px}
         <textarea id="fnote" rows="2" placeholder="למשל: אורז עם עוף וסלט"></textarea>
       </div>
       <button class="save" id="fSave">שמור ארוחה</button>
-      <p class="legend" style="margin:10px 0 0">אחרי שמירה תופיע כאן שעת המדידה, וכפתור שפותח את השעון עם התראה מוכנה.</p>
+      <p class="legend" style="margin:10px 0 0">אחרי שמירה תופיע כאן שעת המדידה, ואם הגדרת תזכורת פוש בהגדרות, היא תגיע לטלפון בשעה הזו.</p>
     </div>
     <div class="day">ארוחות אחרונות</div>
     <div id="mealList"></div>
@@ -302,6 +302,16 @@ nav button{font-size:11px}
     <div class="tools"><button id="cfgSave">שמור וסנכרן</button><button id="syncNow">סנכרן עכשיו</button></div>
     <p class="legend">מזינים פעם אחת בכל מכשיר. הנתונים נשמרים במאגר פרטי בלבד.</p>
   </div>
+  <div class="card">
+    <h2>תזכורת למדידה אחרי ארוחה</h2>
+    <label>כמה זמן אחרי תחילת הארוחה</label>
+    <select id="nMin"><option value="60">שעה</option><option value="90">שעה וחצי</option><option value="120">שעתיים</option></select>
+    <label style="margin-top:10px">שם ערוץ ntfy (תזכורת פוש לטלפון)</label>
+    <input id="nTopic" placeholder="health-xxxxxxxx" style="direction:ltr;font-size:15px;font-weight:500">
+    <div class="tools"><button id="nGen">צור שם אקראי</button><button id="nSave">שמור</button></div>
+    <div class="tools" style="margin-top:8px"><button id="nTest">שלח התראת בדיקה</button></div>
+    <p class="legend">צריך להתקין את אפליקציית ntfy בטלפון ולהירשם לאותו שם ערוץ. אחרי שמירת ארוחה תישלח תזכורת שתגיע בשעת המדידה, גם כשהאפליקציה סגורה.</p>
+  </div>
   <details>
     <summary>גיבוי ידני (לא חובה)</summary>
     <div class="tools"><button id="exp">העתק גיבוי</button><button id="imp">שחזר מגיבוי</button></div>
@@ -317,6 +327,9 @@ nav button{font-size:11px}
   var CTX={fast:'צום',pre:'לפני ארוחה',post:'שעתיים אחרי ארוחה',bed:'לפני שינה'};
   var COL={ok:'#30a14e',warn:'#ff9f0a',bad:'#ff453a',low:'#0a84ff'};
   var $=function(i){return document.getElementById(i)};
+  var NOTIF='bpsugar-notif-v1';
+  function getNotif(){try{return JSON.parse(localStorage.getItem(NOTIF)||'{}')}catch(e){return{}}}
+  var postMin=getNotif().min||120;
   var log=[], deleted=[], sha=null, busy=false, days=7;
 
   function pad(n){return n<10?'0'+n:''+n}
@@ -534,22 +547,17 @@ nav button{font-size:11px}
     log.forEach(function(x){if(x.glu&&x.ctx==='post'){var t=ts(x);if(t>=a&&t<=b&&(!r||t<ts(r)))r=x}});
     return r;
   }
-  function alarmLink(m){
-    var n=new Date(ts(m)+120*60000);
-    return'intent:#Intent;action=android.intent.action.SET_ALARM;i.android.intent.extra.alarm.HOUR='+n.getHours()+
-      ';i.android.intent.extra.alarm.MINUTES='+n.getMinutes()+
-      ';S.android.intent.extra.alarm.MESSAGE='+encodeURIComponent('מדידת סוכר אחרי ארוחה')+';end';
-  }
-  function dueTxt(m){var n=new Date(ts(m)+120*60000);return pad(n.getHours())+':'+pad(n.getMinutes())}
+  function postLabel(){return postMin===60?'שעה':postMin===90?'שעה וחצי':'שעתיים'}
+  function dueTxt(m){var n=new Date(ts(m)+postMin*60000);return pad(n.getHours())+':'+pad(n.getMinutes())}
   function renderMeals(){
     var L=$('mealList');L.textContent='';
     var ms=mealsList(),now=Date.now();
     if(!ms.length){var e=document.createElement('div');e.className='empty';e.textContent='עדיין אין ארוחות. שמור את הארוחה הראשונה.';L.appendChild(e)}
     ms.slice(0,8).forEach(function(m){
       var div=document.createElement('div');div.className='meal';
-      var due=ts(m)+120*60000,post=postFor(m),st='';
+      var due=ts(m)+postMin*60000,post=postFor(m),st='';
       if(post){var r=clsGlu(post.glu,'post');st='<span class="'+r[0]+'">סוכר אחרי ארוחה: '+post.glu+' · '+r[1]+'</span>'}
-      else if(now<due){var mins=Math.ceil((due-now)/60000);st='<span>מדידה ב-'+dueTxt(m)+' (בעוד '+(mins>=60?Math.floor(mins/60)+' שעות ו-'+(mins%60)+' דק\'':mins+' דק\'')+')</span><a class="act pri" href="'+alarmLink(m)+'">התראה בשעון</a>'}
+      else if(now<due){var mins=Math.ceil((due-now)/60000);st='<span>מדידה ב-'+dueTxt(m)+' (בעוד '+(mins>=60?Math.floor(mins/60)+' שעות ו-'+(mins%60)+' דק\'':mins+' דק\'')+')</span>'}
       else if(now<due+4*3600000){st='<span class="warn">הגיע הזמן למדוד סוכר</span><button class="act pri" data-act="measure">מדוד עכשיו</button>'}
       else st='<span style="color:var(--mut)">לא נמדד אחרי הארוחה</span>';
       div.innerHTML='<div class="top"><span>'+fd(m.d).slice(0,5)+' · '+m.t+'</span><button class="del" data-id="'+m.id+'">מחק</button></div><div class="nm">'+MEAL[m.meal]+'</div>';
@@ -558,17 +566,44 @@ nav button{font-size:11px}
       L.appendChild(div);
     });
     var ban=null;
-    ms.forEach(function(m){if(!ban&&!postFor(m)){var d=ts(m)+120*60000;if(now>=d&&now<d+4*3600000)ban=m}});
-    if(ban){$('dueTxt').textContent='הגיע הזמן למדוד סוכר, שעתיים אחרי '+MEAL[ban.meal];$('dueBanner').className='due on'}
+    ms.forEach(function(m){if(!ban&&!postFor(m)){var d=ts(m)+postMin*60000;if(now>=d&&now<d+4*3600000)ban=m}});
+    if(ban){$('dueTxt').textContent='הגיע הזמן למדוד סוכר, '+postLabel()+' אחרי '+MEAL[ban.meal];$('dueBanner').className='due on'}
     else $('dueBanner').className='due';
   }
+  function ntfy(payload){
+    var c=getNotif();if(!c.topic)return Promise.resolve(false);
+    payload.topic=c.topic;
+    return fetch('https://ntfy.sh/',{method:'POST',body:JSON.stringify(payload)}).then(function(r){return r.ok}).catch(function(){return false});
+  }
+  function scheduleReminder(m){
+    var c=getNotif();if(!c.topic)return;
+    var sec=Math.max(30,Math.round((ts(m)+postMin*60000-Date.now())/1000));
+    ntfy({title:'מדידת סוכר',message:postLabel()+' אחרי '+MEAL[m.meal]+' · זמן למדוד',delay:sec+'s',priority:4,tags:['drop_of_blood']}).then(function(ok){toast(ok?'תזכורת נשלחה ל-'+dueTxt(m):'שליחת התזכורת נכשלה')});
+  }
+  $('nMin').value=''+postMin;
+  $('nTopic').value=getNotif().topic||'';
+  $('nGen').addEventListener('click',function(){
+    var a='abcdefghijkmnpqrstuvwxyz23456789',r='';for(var i=0;i<10;i++)r+=a[Math.floor(Math.random()*a.length)];
+    $('nTopic').value='health-'+r;
+  });
+  $('nSave').addEventListener('click',function(){
+    var t=$('nTopic').value.trim();
+    if(t&&!/^[A-Za-z0-9_-]{6,64}$/.test(t)){toast('שם הערוץ: אותיות באנגלית, מספרים, מקף');return}
+    postMin=parseInt($('nMin').value,10)||120;
+    try{localStorage.setItem(NOTIF,JSON.stringify({topic:t,min:postMin}))}catch(e){toast('לא ניתן לשמור');return}
+    renderMeals();toast('נשמר');
+  });
+  $('nTest').addEventListener('click',function(){
+    if(!getNotif().topic){toast('קודם שמור שם ערוץ');return}
+    ntfy({title:'בדיקה',message:'התראת בדיקה מיומן המדידות',priority:3,tags:['white_check_mark']}).then(function(ok){toast(ok?'נשלחה, בדוק את הטלפון':'השליחה נכשלה, בדוק חיבור')});
+  });
   function measureNow(){show('Add');$('ctx').value='post';live();setTimeout(function(){$('glu').focus()},50)}
   $('dueBtn').addEventListener('click',measureNow);
   $('mealList').addEventListener('click',function(e){if(e.target&&e.target.getAttribute&&e.target.getAttribute('data-act')==='measure')measureNow()});
   $('fSave').addEventListener('click',function(){
     var x={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),d:$('fdate').value,t:$('ftime').value,meal:$('fkind').value,note:$('fnote').value.trim()};
     if(!x.d||!x.t){toast('חסר תאריך או שעה');return}
-    log.push(x);persist();$('fnote').value='';setNow();render();sync();toast('הארוחה נשמרה');
+    log.push(x);persist();$('fnote').value='';setNow();render();sync();toast('הארוחה נשמרה');scheduleReminder(x);
   });
 
   // ---- navigation
