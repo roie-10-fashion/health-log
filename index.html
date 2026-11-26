@@ -121,6 +121,17 @@ nav button.on{color:#ff2d6f}
 .rg b{flex:1;font-size:15px;font-weight:600}
 .rg span{font-size:13px;color:var(--mut);text-align:end}
 .rgn{font-size:13px;color:var(--mut);line-height:1.6;padding:4px 6px 0}
+
+.due{display:none;background:linear-gradient(135deg,#7a5cff,#2f9bff);color:#fff;border-radius:18px;padding:12px 14px;margin-bottom:12px;align-items:center;justify-content:space-between;gap:10px;font-weight:600;font-size:14px}
+.due.on{display:flex}
+.due button{background:#fff;color:#4a3fd6;border-radius:12px;padding:8px 14px;font-weight:700;font-size:13px;flex:none}
+.meal{background:var(--card);border-radius:16px;padding:12px 14px;margin-bottom:8px}
+.meal .top{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mut)}
+.meal .nm{font-size:16px;font-weight:700;margin-top:4px}
+.meal .st2{margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:600}
+.meal .act{background:var(--field);color:var(--txt);border-radius:12px;padding:7px 12px;font-weight:700;font-size:13px;text-decoration:none;display:inline-block}
+.meal .act.pri{background:linear-gradient(135deg,#7a5cff,#2f9bff);color:#fff}
+nav button{font-size:11px}
 </style>
 </head>
 <body>
@@ -138,6 +149,7 @@ nav button.on{color:#ff2d6f}
   </header>
 
   <section class="view on" id="vAdd">
+    <div class="due" id="dueBanner"><span id="dueTxt"></span><button id="dueBtn">מדוד עכשיו</button></div>
     <div class="tile bp" id="tBP"></div>
     <div class="tiles2"><div class="tile glu" id="tGlu"></div><div class="tile pul" id="tPul"></div></div>
 
@@ -173,6 +185,31 @@ nav button.on{color:#ff2d6f}
       <textarea id="note" rows="2" placeholder="למשל: אחרי קפה, אחרי הכדור"></textarea>
       <button class="save" id="save">שמור מדידה</button>
     </div>
+  </section>
+
+  <section class="view" id="vFood">
+    <div class="card">
+      <h2>ארוחה חדשה</h2>
+      <div class="row">
+        <div><label>תאריך</label><input type="date" id="fdate"></div>
+        <div><label>שעה</label><input type="time" id="ftime"></div>
+      </div>
+      <div style="margin-top:10px"><label>סוג</label>
+        <select id="fkind">
+          <option value="b">ארוחת בוקר</option>
+          <option value="l">ארוחת צהריים</option>
+          <option value="d">ארוחת ערב</option>
+          <option value="s">נשנוש</option>
+        </select>
+      </div>
+      <div style="margin-top:10px"><label>מה אכלתי (לא חובה)</label>
+        <textarea id="fnote" rows="2" placeholder="למשל: אורז עם עוף וסלט"></textarea>
+      </div>
+      <button class="save" id="fSave">שמור ארוחה</button>
+      <p class="legend" style="margin:10px 0 0">אחרי שמירה תקבל כאן תזכורת למדוד סוכר שעתיים אחרי הארוחה.</p>
+    </div>
+    <div class="day">ארוחות אחרונות</div>
+    <div id="mealList"></div>
   </section>
 
   <section class="view" id="vLog">
@@ -223,6 +260,7 @@ nav button.on{color:#ff2d6f}
 
 <nav>
   <button id="nAdd" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>מדידה</button>
+  <button id="nFood"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8M4 3v5a3 3 0 0 0 6 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10"/></svg>אוכל</button>
   <button id="nLog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>יומן</button>
   <button id="nCharts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>גרפים</button>
   <button id="nRanges"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>טווחים</button>
@@ -268,7 +306,7 @@ nav button.on{color:#ff2d6f}
   function getCfg(){try{return JSON.parse(localStorage.getItem(CFG)||'{}')}catch(e){return{}}}
   function persist(){try{localStorage.setItem(KEY,JSON.stringify(log));localStorage.setItem(KEY+'-del',JSON.stringify(deleted));return true}catch(e){return false}}
   function toast(m){var t=$('toast');t.textContent=m;t.className='toast show';setTimeout(function(){t.className='toast'},2000)}
-  function setNow(){var n=new Date();$('d').value=n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate());$('t').value=pad(n.getHours())+':'+pad(n.getMinutes())}
+  function setNow(){var n=new Date(),dv=n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate()),tv=pad(n.getHours())+':'+pad(n.getMinutes());$('d').value=dv;$('t').value=tv;$('fdate').value=dv;$('ftime').value=tv}
   function ts(x){return new Date(x.d+'T'+x.t).getTime()}
   function fd(d){var p=d.split('-');return p[2]+'.'+p[1]+'.'+p[0]}
   function sdate(t){var n=new Date(t);return pad(n.getDate())+'.'+pad(n.getMonth()+1)}
@@ -339,6 +377,7 @@ nav button.on{color:#ff2d6f}
       }
       var div=document.createElement('div');div.className='entry';
       var h2='<div class="top"><span>'+x.t+'</span><button class="del" data-id="'+x.id+'">מחק</button></div><div class="vals">';
+      if(x.meal)h2+='<span class="val" style="color:#7a5cff">'+MEAL[x.meal]+'</span>';
       if(x.sys&&x.dia){var r=clsBP(x.sys,x.dia);h2+='<span class="val '+r[0]+'">'+x.sys+'/'+x.dia+'<small>לחץ דם</small></span>'}
       if(x.pul){var rp=clsPul(x.pul);h2+='<span class="val '+rp[0]+'">'+x.pul+'<small>דופק</small></span>'}
       if(x.glu){var rg=clsGlu(x.glu,x.ctx);h2+='<span class="val '+rg[0]+'">'+x.glu+'<small>סוכר · '+CTX[x.ctx]+'</small></span>'}
@@ -401,20 +440,69 @@ nav button.on{color:#ff2d6f}
     var p=avg(pu.map(function(x){return x.pul}));
     $('sPul').textContent=p?'ממוצע '+p+' · האזור 60–100':'';
   }
-  function render(){renderTiles();renderLog();renderCharts()}
+  function render(){renderTiles();renderLog();renderCharts();renderMeals()}
+
+  // ---- greeting
+  function greet(){var h=new Date().getHours();return(h>=5&&h<12?'בוקר טוב':h>=12&&h<18?'צהריים טובים':h>=18&&h<22?'ערב טוב':'לילה טוב')+' רועי'}
+  function titleFor(v){return v==='Add'?greet():v==='Food'?'אוכל':v==='Log'?'יומן':v==='Charts'?'גרפים':'טווחים'}
+
+  // ---- meals
+  var MEAL={b:'ארוחת בוקר',l:'ארוחת צהריים',d:'ארוחת ערב',s:'נשנוש'};
+  function mealsList(){return log.filter(function(x){return x.meal}).sort(function(a,b){return ts(b)-ts(a)})}
+  function postFor(m){
+    var a=ts(m),b=a+6*3600000,r=null;
+    log.forEach(function(x){if(x.glu&&x.ctx==='post'){var t=ts(x);if(t>=a&&t<=b&&(!r||t<ts(r)))r=x}});
+    return r;
+  }
+  function gcal(m){
+    function f(t){var n=new Date(t);return n.getFullYear()+pad(n.getMonth()+1)+pad(n.getDate())+'T'+pad(n.getHours())+pad(n.getMinutes())+'00'}
+    var st=ts(m)+120*60000;
+    return'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('מדידת סוכר אחרי ארוחה')+
+      '&dates='+f(st)+'/'+f(st+15*60000)+'&details='+encodeURIComponent('שעתיים אחרי '+MEAL[m.meal]+(m.note?' ('+m.note+')':''));
+  }
+  function renderMeals(){
+    var L=$('mealList');L.textContent='';
+    var ms=mealsList(),now=Date.now();
+    if(!ms.length){var e=document.createElement('div');e.className='empty';e.textContent='עדיין אין ארוחות. שמור את הארוחה הראשונה.';L.appendChild(e)}
+    ms.slice(0,8).forEach(function(m){
+      var div=document.createElement('div');div.className='meal';
+      var due=ts(m)+120*60000,post=postFor(m),st='';
+      if(post){var r=clsGlu(post.glu,'post');st='<span class="'+r[0]+'">סוכר אחרי ארוחה: '+post.glu+' · '+r[1]+'</span>'}
+      else if(now<due){var mins=Math.ceil((due-now)/60000);st='<span>מדידה בעוד '+(mins>=60?Math.floor(mins/60)+' שעות ו-'+(mins%60)+' דק\'':mins+' דק\'')+'</span><a class="act pri" target="_blank" rel="noopener" href="'+gcal(m)+'">תזכורת בטלפון</a>'}
+      else if(now<due+4*3600000){st='<span class="warn">הגיע הזמן למדוד סוכר</span><button class="act pri" data-act="measure">מדוד עכשיו</button>'}
+      else st='<span style="color:var(--mut)">לא נמדד אחרי הארוחה</span>';
+      div.innerHTML='<div class="top"><span>'+fd(m.d).slice(0,5)+' · '+m.t+'</span><button class="del" data-id="'+m.id+'">מחק</button></div><div class="nm">'+MEAL[m.meal]+'</div>';
+      if(m.note){var n=document.createElement('div');n.className='note';n.textContent=m.note;div.appendChild(n)}
+      var s2=document.createElement('div');s2.className='st2';s2.innerHTML=st;div.appendChild(s2);
+      L.appendChild(div);
+    });
+    var ban=null;
+    ms.forEach(function(m){if(!ban&&!postFor(m)){var d=ts(m)+120*60000;if(now>=d&&now<d+4*3600000)ban=m}});
+    if(ban){$('dueTxt').textContent='הגיע הזמן למדוד סוכר, שעתיים אחרי '+MEAL[ban.meal];$('dueBanner').className='due on'}
+    else $('dueBanner').className='due';
+  }
+  function measureNow(){show('Add');$('ctx').value='post';live();setTimeout(function(){$('glu').focus()},50)}
+  $('dueBtn').addEventListener('click',measureNow);
+  $('mealList').addEventListener('click',function(e){if(e.target&&e.target.getAttribute&&e.target.getAttribute('data-act')==='measure')measureNow()});
+  $('fSave').addEventListener('click',function(){
+    var x={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),d:$('fdate').value,t:$('ftime').value,meal:$('fkind').value,note:$('fnote').value.trim()};
+    if(!x.d||!x.t){toast('חסר תאריך או שעה');return}
+    log.push(x);persist();$('fnote').value='';setNow();render();sync();toast('הארוחה נשמרה');
+  });
 
   // ---- navigation
   function show(v){
-    ['Add','Log','Charts','Ranges'].forEach(function(n){
+    ['Add','Food','Log','Charts','Ranges'].forEach(function(n){
       $('v'+n).className='view'+(n===v?' on':'');
       $('n'+n).className=n===v?'on':'';
     });
-    $('title').textContent=v==='Add'?'מדידות':v==='Log'?'יומן':v==='Charts'?'גרפים':'טווחים';
+    $('title').textContent=titleFor(v);
     if(v==='Charts')renderCharts();
     window.scrollTo(0,0);
   }
   $('nAdd').addEventListener('click',function(){show('Add')});
   $('nLog').addEventListener('click',function(){show('Log')});
+  $('nFood').addEventListener('click',function(){show('Food')});
   $('nCharts').addEventListener('click',function(){show('Charts')});
   $('nRanges').addEventListener('click',function(){show('Ranges')});
   $('rangeChips').addEventListener('click',function(e){
@@ -439,7 +527,7 @@ nav button.on{color:#ff2d6f}
     setNow();live();render();sync();
     toast(ok?'נשמר':'נשמר לשימוש זמני בלבד');
   });
-  $('list').addEventListener('click',function(e){
+  var onDel=function(e){
     var id=e.target&&e.target.getAttribute&&e.target.getAttribute('data-id');if(!id)return;
     if(e.target.getAttribute('data-sure')!=='1'){
       var b=e.target;b.setAttribute('data-sure','1');b.textContent='בטוח? לחץ שוב';
@@ -448,7 +536,8 @@ nav button.on{color:#ff2d6f}
     log=log.filter(function(x){return x.id!==id});
     if(deleted.indexOf(id)<0)deleted.push(id);
     persist();render();sync();
-  });
+  };
+  $('list').addEventListener('click',onDel);$('mealList').addEventListener('click',onDel);
   ['sys','dia','pul','glu'].forEach(function(i){$(i).addEventListener('input',live)});
   $('ctx').addEventListener('change',live);
 
@@ -512,7 +601,7 @@ nav button.on{color:#ff2d6f}
   document.addEventListener('visibilitychange',function(){if(!document.hidden)sync()});
   if('serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js')}catch(e){}}
 
-  load();setNow();live();render();
+  load();setNow();live();render();$('title').textContent=greet();setInterval(function(){renderMeals();if($('vAdd').className.indexOf('on')>-1)$('title').textContent=greet()},60000);
   try{$('hdate').textContent=new Date().toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long'})}catch(e){}
   (function(){var c=getCfg();if(c.repo)$('cfgRepo').value=c.repo;sync()})();
 })();
